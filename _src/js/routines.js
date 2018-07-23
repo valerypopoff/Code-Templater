@@ -5,6 +5,7 @@ var bukopen = "$$${";
 var bukclose = "$$$}";
 var braceopen = "{";
 var braceclose = "}";
+var not_iterator = "!!!";
 
 
 
@@ -201,17 +202,16 @@ function StartBuckRec( opts )
 
 	return ConvertBucklines({
 								// Since this is the root call of ConvertBucklines, 
-								// add additional bukopen and bukclose to tyhe lines 
+								// add additional bukopen and bukclose to the lines 
 								lines: [].concat(bukopen, opts.lines, bukclose),
 								
 								instructions: opts.instructions,
 								domain: opts.domain,
 								delimiter: opts.delimiter,
-								//domain_part: 0,
-								level: 0,
+								level: 0, // not used yet
 								iteration: 0,
 								lookup: root_lookup,
-								root_back_lookup: [root_lookup],
+								root_back_lookup: [root_lookup], // not used yet
 								real: true
 							}
 							).result;
@@ -231,36 +231,37 @@ function ConvertBucklines( opts )
 	}
 
 
-
 	var inner_lines = [];
 	var open_count = 0;
 	var not_iterate = false;
 	var close_count = 0;
 	var inner_lvl_opened = false;
-	//var max_different = 1;
+	var back_lookup_empty = true;
+
+	// To return
 	var max_different = 0;
 	var back_lookup = [opts.lookup];
-	var back_lookup_empty = true;
 	var atleastone = false;
 
 
 	for( var i=0; i<opts.lines.length; i++ )
 	{
 		// $$$ {
-		//if( opts.real )
 		if( opts.lines[i].indexOf(bukopen) >= 0 )
 		{
 			open_count++;
 			
 			if( !inner_lvl_opened )
 			{
-				if( opts.lines[i].indexOf("!!!") >= 0 )
+				// We must set the flag to false because 
+				// there might be more that one inner level bucks 
+				if( opts.lines[i].indexOf(not_iterator) >= 0 )
 				not_iterate = true;
 				else
 				not_iterate = false;					
 			}
 
-			// Only put keys if inner level already opened
+			// Only put $$${ line if inner level already opened
 			if( inner_lvl_opened )
 			inner_lines.push( opts.lines[i] );
 
@@ -270,105 +271,97 @@ function ConvertBucklines( opts )
 		}
 
 		// $$$ }
-		//if( opts.real )
 		if( opts.lines[i].indexOf(bukclose) >= 0 || (i == opts.lines.length-1 && open_count != close_count) )
 		{
 			close_count++;
 
 			// CLOSING INNER LEVEL
 			if( open_count == close_count )
-			{	
-				//console.log( inner_lines )
-				var converted_future = ConvertBucklines({
-					lines: 			inner_lines,
-					instructions:	opts.instructions,
-					domain: 		opts.domain,
-					delimiter: 		opts.delimiter,
-					level: 			opts.level+1,
-					
-					// Fake Buckclines Always start with iteration 0 
-					// because we pretend there are no outer levels 
-					iteration: 		0,
-					lookup: 		opts.lookup,
-					real: 			false
-				});
-
-				//console.log(converted_future.back_lookup);
-
-
-				//----------------------------------------------------------------------------
-
-				// Repeat block as many times as there are different values of variables on the inner level
-				// If back lookup is empty (zero variations), repeat block one time
-				var times = converted_future.back_lookup.length;
-				//times = times > 0 ? times : 1;
-
-				//console.log( "true: " + opts.real );
-				//console.log( "times: " + times );
-
-
-				for( var k=0; k<times; k++ )
+			{
+				// Only convert if this is real
+				// No need to convert the content of ${{{ $}}} if this is not real
+				if( opts.real )
 				{
-					var inner_iteration = 0;
-					var repeats_put = 0;
+					var converted_future = ConvertBucklines({
+												lines: 			inner_lines,
+												instructions:	opts.instructions,
+												domain: 		opts.domain,
+												delimiter: 		opts.delimiter,
+												level: 			opts.level+1,
+												
+												// Fake Buckclines Always start with the parent lookup 
+												// but with the iteration 0 because we pretend there are no outer levels 
+												iteration: 		0,
+												lookup: 		opts.lookup,
+												real: 			false
+											});
 
-					if( not_iterate )
+
+
+					//----------------------------------------------------------------------------
+
+					// Repeat block as many times as there are different variations of #vars on the inner level/
+					// values of variables on the inner level
+					var times = converted_future.back_lookup.length;
+
+					for( var k=0; k<times; k++ )
 					{
-						// Repeat only once with the parent iteration
-						inner_iteration = opts.iteration;
-						converted_future.max_different = inner_iteration+1;
-					}
+						var inner_iteration = 0;
+						var repeats_put = 0;
 
-					//while(1)
-					while( inner_iteration < converted_future.max_different )
-					{
-						var converted = ConvertBucklines({
-														lines: 			inner_lines,
-														instructions:	opts.instructions,
-														domain: 		opts.domain,
-														delimiter: 		opts.delimiter,
-														//domain_part: 	k,
-														//domain_part: 	converted_future.back_lookup[k],
-														level: 			opts.level+1,
-														iteration: 		inner_iteration,
-														lookup: 		converted_future.back_lookup.length == 0 ? [] : converted_future.back_lookup[k],
-														real: 			opts.real
-													});
-
-						//if( inner_iteration >= converted.max_different )
-						//break;
-
-						if( converted.atleastone || !opts.real )
+						if( not_iterate )
 						{
-							if( repeats_put != 0 && opts.delimiter != "" )
-							PushDelimiter();
-
-							result_lines = result_lines.concat( converted.result );
-
-							repeats_put++;
+							// Repeat only once with the parent iteration
+							inner_iteration = opts.iteration;
+							converted_future.max_different = inner_iteration+1;
 						}
 
-						inner_iteration++;
-					}	
+						while( inner_iteration < converted_future.max_different )
+						{
+							var converted = ConvertBucklines({
+															lines: 			inner_lines,
+															instructions:	opts.instructions,
+															domain: 		opts.domain,
+															delimiter: 		opts.delimiter,
+															level: 			opts.level+1,
+															iteration: 		inner_iteration,
+															lookup: 		converted_future.back_lookup[k],
+															real: 			opts.real
+														});
 
-					if( converted_future.max_different == 0 )
-					continue;
 
-					if( k != times-1 )	
-					PushDelimiter(); 
-				}
+							if( converted.atleastone || !opts.real )
+							{
+								if( repeats_put != 0 && opts.delimiter != "" )
+								PushDelimiter();
 
-				// -----------------------------------------------------------------------
+								result_lines = result_lines.concat( converted.result );
+
+								repeats_put++;
+							}
+
+							inner_iteration++;
+						}	
+
+						if( converted_future.max_different == 0 )
+						continue;
+
+						if( k != times-1 )	
+						PushDelimiter(); 
+					}
+
+					// -----------------------------------------------------------------------
 				
+				}
 
 				inner_lvl_opened = false;
 				open_count = 0;
 				close_count = 0;
 				inner_lines = [];
 			}
+			// NOT CLOSING INNER LEVEL YET
 			else
 			{
-				// Only put keys if inner level hasn't just closed
 				inner_lines.push( opts.lines[i] );
 			}
 			
@@ -377,7 +370,6 @@ function ConvertBucklines( opts )
 
 		// INNER LEVEL
 		// keep adding to inner_lines
-		//if( opts.real )
 		if( open_count > 0 )
 		{
 			inner_lines.push( opts.lines[i] );
@@ -389,16 +381,18 @@ function ConvertBucklines( opts )
 		// ### 
 		if( opts.lines[i].indexOf(hashkey) >= 0 )
 		{
-			//console.log( opts.lines[i] )
 			var converted = ConvertLine({
-											line: opts.lines[i],
-											instructions: opts.instructions, 
-											domain: opts.domain, 
-											domain_part: opts.lookup[0], // because this #var is the same in lookup[0], lookup[1], lookup[2] and so on 
-											iteration: opts.iteration,
-											lookup: opts.lookup,
-											real: opts.real
-										} ); 	
+								line: opts.lines[i],
+								instructions: opts.instructions, 
+								domain: opts.domain, 
+
+								// because this #var is the same in lookup[0], lookup[1], lookup[2] and so on 
+								domain_part: opts.lookup[0],
+
+								iteration: opts.iteration,
+								lookup: opts.lookup,
+								real: opts.real
+							}); 	
 
 			// Print the converted string if:
 			// — There were no hashes
@@ -408,26 +402,27 @@ function ConvertBucklines( opts )
 				(converted.werehashes && converted.atleastone) || 
 				(converted.werehashes && !converted.atleastone && converted.persist_if_nothing) 
 			)
-				result_lines.push( converted.result );
+			result_lines.push( converted.result );
 			//else
 			//result_lines.push( "// BLANK   " + converted.result );
 			//↑ THIS WILL PRINT SRINGS WHEN NO ATLEASTONE
 
+
+			// Set atleastone if:
+			// — There were hashes and at least one was converted to non-empty string
+			// — There were hashes and none of them was converted to non-empty string but it was a string with /*PERSIST*/
 			if( (converted.werehashes && converted.atleastone) || 
-				(converted.werehashes && !converted.atleastone && converted.persist_if_nothing) )
+				(converted.werehashes && !converted.atleastone && converted.persist_if_nothing) 
+			)
 			atleastone = true;
 
 
-
-			//console.log(opts.lines[i])
-			//console.log(converted.back_lookup)
 			
 			if( converted.back_lookup.length > 0 )
 			{
 				back_lookup_empty = false;
 				back_lookup = AddLookup( back_lookup, converted.back_lookup );
 			}
-			//console.log(back_lookup)
 			
 			if( converted.max_different > max_different )
 			max_different = converted.max_different;			
@@ -438,12 +433,10 @@ function ConvertBucklines( opts )
 		// SAME LEVEL
 		// No-### line (including blank)
 		// leave it as it is
-		//if( opts.real )
 		result_lines.push( opts.lines[i] );
 	}
 
-	
-	
+		
 	if(back_lookup_empty)
 	back_lookup = [];
 
@@ -457,52 +450,15 @@ function ConvertBucklines( opts )
 
 function ConvertLine( opts ) 
 {
-	var atleastone = false;
-	var werehashes = false;
-	//var max_different = 1;
-	var max_different = 0;
-	var back_lookup = [opts.lookup];
-	var cross_cutting = false;
-	var persist_if_nothing = false;
+	//var cross_cutting = false;
 	var back_lookup_empty = true;
 
-	//console.log("back: " + JSON.stringify(back_lookup))
-
-	function MakeLookup( domain, key )
-	{
-		var values = {};
-
-		for( var k=0; k<opts.lookup.length; k++ )
-		{
-			var domain_part = opts.lookup[k];  // 0 1 
-			//console.log( domain_part )
-
-			var target = opts.instructions[domain][domain_part][key];
-
-			if( Array.isArray( target ) )
-			{
-				target = target.slice(0);
-				target.sort();
-			}
-
-			if( values[ target ] === undefined )
-			values[ target ] = [domain_part];
-			else
-			values[ target ].push(domain_part);
-		}
-		//console.log( "AAA: " + JSON.stringify(values) )
-
-		//console.log(values)
-		var lookup = [];
-		for( var k in values )
-		{
-			//console.log("pushed")
-			lookup.push( values[k] );
-		}
-		//console.log( "BBB: " + JSON.stringify(lookup) )
-
-		return lookup;
-	}
+	// To return
+	var atleastone = false;
+	var werehashes = false;
+	var persist_if_nothing = false;
+	var max_different = 0;
+	var back_lookup = [opts.lookup];
 
 
 	// Check if persists
@@ -516,63 +472,38 @@ function ConvertLine( opts )
 
 	var result = opts.line.replace( /###.+?###/g, function(str)
 	{
+		// If we're here, it means there's hashes
 		werehashes = true;
-		cross_cutting = false;
-
-		function Empty(key)
-		{
-			// Already basic domain — nowhere else too look for
-			if( opts.domain == "" )
-			return "";
-
-			// No basic level instructions specified
-			if( opts.instructions[""] === undefined )
-			return "";
-
-			if( opts.instructions[""][0][key] === undefined )
-			return "";
-			else
-			{
-				if( Array.isArray(opts.instructions[""][0][key][0]) )
-				return opts.instructions[""][0][key][0];
-				else
-				return opts.instructions[""][0][key];
-			}
-
-			return "";
-		}
 
 
 		var key = str.substr(3,str.length-6).trim();
-
+		var cross_cutting = false;
 
 		// See if crosscutting
 		if( key.indexOf("(") >= 0 )
 		{
 			cross_cutting = true;
-
 			key = key.split(/[()]/).join("").trim();
 		}
-
 
 
 		// Unknown domain
 		if( opts.instructions[opts.domain] === undefined )
 		{
-			return Empty(key);
+			return Empty(key, opts);
 		}
 
 		// If domain part is undefined. Probably because the lookup was empty
 		if( opts.domain_part === undefined )
 		{
 			//console.log( "AGA" )
-			return Empty(key);
+			return Empty(key, opts);
 		}
 
 		// Key doesn't exist in the specified domain
 		if( opts.instructions[opts.domain][opts.domain_part][key] === undefined )
 		{
-			return Empty(key);
+			return Empty(key, opts);
 		}
 
 		// It's Array, but key iteration doesn't exist
@@ -584,39 +515,21 @@ function ConvertLine( opts )
 			return "";
 		}
 
-		/*
-		// It's Array, key iteration exists but it's empty
-		// So return empty string, but set max_deifferent and lookup if this isn't real 
-		// because if it's unreal FutureBuck, it always starts with iteration 0 and it should know it 
-		if( Array.isArray(opts.instructions[opts.domain][opts.domain_part][key]) && 
-			opts.instructions[opts.domain][opts.domain_part][key][opts.iteration] !== undefined && 
-			opts.instructions[opts.domain][opts.domain_part][key][opts.iteration] == "" )
-		{
-			if( !opts.real )
-			{
-				if( opts.instructions[opts.domain][opts.domain_part][key].length > max_different )
-				max_different = opts.instructions[opts.domain][opts.domain_part][key].length;
-
-				back_lookup_empty = false;
-				back_lookup = AddLookup( back_lookup, MakeLookup( opts.domain, key ) );
-			}
-
-			return "";
-		}
-		*/
 
 
 		// If it's array
 		if( Array.isArray(opts.instructions[opts.domain][opts.domain_part][key]) )
 		{
-
+			// Set max_diferent and back_lookup even if the target value is empty
+			// because we only need it for FutureBuck analysis
 			if( opts.instructions[opts.domain][opts.domain_part][key].length > max_different )
 			max_different = opts.instructions[opts.domain][opts.domain_part][key].length;
 
 			back_lookup_empty = false;
-			back_lookup = AddLookup( back_lookup, MakeLookup( opts.domain, key ) );
+			back_lookup = AddLookup( back_lookup, MakeLookup( opts.domain, key, opts ) );
 
-			// Only consider atleastone if string is not empty
+
+			// Only set atleastone if string is not empty
 			// Cause if it's empty, it means that nothing was cpecified in the instruction for this particular iteration
 			var ret = opts.instructions[opts.domain][opts.domain_part][key][opts.iteration];
 			if( ret.length != 0 )
@@ -626,11 +539,13 @@ function ConvertLine( opts )
 		} 
 		else // Not array
 		{
+			// Set max_diferent and back_lookup even if the target value is empty
+			// because we only need it for FutureBuck analysis
 			if( 1 > max_different )
 			max_different = 1;
 
 			back_lookup_empty = false;
-			back_lookup = AddLookup( back_lookup, MakeLookup( opts.domain, key ) );
+			back_lookup = AddLookup( back_lookup, MakeLookup( opts.domain, key, opts ) );
 
 
 			// This is not array but it is the iteration that's > 0. 
@@ -643,16 +558,13 @@ function ConvertLine( opts )
 			}
 			else
 			{
-				// Only consider atleastone if string is not empty
+				// Only set atleastone if string is not empty
 				// Cause if it's empty, it means that nothing was cpecified in the instruction
 				var ret = opts.instructions[opts.domain][opts.domain_part][key];
 				if( ret.length != 0 )
 					atleastone = true;
 				
-				return ret;
-			
-				//atleastone = true;
-				//return opts.instructions[opts.domain][opts.domain_part][key];
+				return ret;			
 			}
 		} 
 	})

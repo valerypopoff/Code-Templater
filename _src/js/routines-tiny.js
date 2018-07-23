@@ -424,3 +424,75 @@ function RemoveJunk( dir, minutes )
     });	
 	
 }
+
+
+function MakeLookup( domain, key, opts )
+{
+    var values = {};
+
+    for( var k=0; k<opts.lookup.length; k++ )
+    {
+        var domain_part = opts.lookup[k];  // 0 1 
+        //console.log( domain_part )
+
+        var target = opts.instructions[domain][domain_part][key];
+
+        if( Array.isArray( target ) )
+        {
+            target = target.slice(0);
+            target.sort();
+        }
+
+        if( values[ target ] === undefined )
+        values[ target ] = [domain_part];
+        else
+        values[ target ].push(domain_part);
+    }
+    //console.log( "AAA: " + JSON.stringify(values) )
+
+    //console.log(values)
+    var lookup = [];
+    for( var k in values )
+    {
+        //console.log("pushed")
+        lookup.push( values[k] );
+    }
+    //console.log( "BBB: " + JSON.stringify(lookup) )
+
+    return lookup;
+}
+
+
+function Empty(key, opts)
+{
+    // Already basic domain — nowhere else too look for
+    if( opts.domain == "" )
+    return "";
+
+    // No basic level instructions specified
+    if( opts.instructions[""] === undefined )
+    return "";
+
+    if( opts.instructions[""][0][key] === undefined )
+    return "";
+    else
+    {
+        if( Array.isArray(opts.instructions[""][0][key][0]) )
+        return opts.instructions[""][0][key][0];
+        else
+        return opts.instructions[""][0][key];
+    }
+
+    return "";
+}
+
+
+
+
+
+
+
+
+
+
+        
