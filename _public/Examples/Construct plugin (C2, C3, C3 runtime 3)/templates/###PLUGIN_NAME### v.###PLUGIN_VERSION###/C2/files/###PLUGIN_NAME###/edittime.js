@@ -107,7 +107,7 @@ Add###PARAM_TYPE_C2###("###PARAM_LABEL###", "###PARAM_DESCRIPTION###"
 );	
 
 $$$}	
-Add###ACES_C2_EDITTIME###(###ID_C2###, ###FLAGS_C2###, "###LIST_NAME###", "###CATEGORY_NAME_C2###", "###DISPLAY_STRING###", "###DESCRIPTION###", "###SCRIPT_NAME###");
+Add###ACES_C2_EDITTIME###(###ID_C2###, ###FLAGS_C2###, "###LIST_NAME###", "###CATEGORY_NAME###", "###DISPLAY_STRING###", "###DESCRIPTION###", "###SCRIPT_NAME###");
 
 
 $$$
@@ -128,7 +128,7 @@ Add###PARAM_TYPE_C2###("###PARAM_LABEL###", "###PARAM_DESCRIPTION###"
 );	
 
 $$$}	
-Add###ACES_C2_EDITTIME###(###ID_C2###, ###FLAGS_C2###, "###LIST_NAME###", "###CATEGORY_NAME_C2###", "###DISPLAY_STRING###", "###DESCRIPTION###", "###SCRIPT_NAME###");
+Add###ACES_C2_EDITTIME###(###ID_C2###, ###FLAGS_C2###, "###LIST_NAME###", "###CATEGORY_NAME###", "###DISPLAY_STRING###", "###DESCRIPTION###", "###SCRIPT_NAME###");
 
 
 $$$
@@ -142,7 +142,7 @@ Add###PARAM_TYPE_C2###("###PARAM_LABEL###", "###PARAM_DESCRIPTION###"
 );	
 
 $$$}
-Add###ACES_C2_EDITTIME###(###ID_C2###, ###FLAGS_C2###, "###LIST_NAME###", "###CATEGORY_NAME_C2###", "###SCRIPT_NAME###", "###DESCRIPTION###");
+Add###ACES_C2_EDITTIME###(###ID_C2###, ###FLAGS_C2###, "###LIST_NAME###", "###CATEGORY_NAME###", "###SCRIPT_NAME###", "###DESCRIPTION###");
 
 $$$
 

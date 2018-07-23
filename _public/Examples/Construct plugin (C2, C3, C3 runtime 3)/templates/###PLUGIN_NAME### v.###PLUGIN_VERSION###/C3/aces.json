@@ -9,7 +9,6 @@ $$$ DOMAIN="ACE" DELIMITER=","
 		{  
 			"id": "###ID_C3###",
 			"c2id": ###ID_C2###,
-			"isDeprecated": ###DEPRECATED_C3###,
 			"scriptName": "###SCRIPT_NAME###",
 			"expressionName": "###SCRIPT_NAME###",
 			"highlight": ###HIGHLIGHT###,
@@ -19,13 +18,15 @@ $$$ DOMAIN="ACE" DELIMITER=","
 			"params": 
 			[
 				$$${
-				{ "id": "###PARAM_ID_C3###", "type": "###PARAM_TYPE_C3###"
-				, "initialValue": "###PARAM_INIT_VALUE###" 
-				, "initialValue": "###PARAM_INIT_COMBO_C3###" 
+				{ 
+					"id": "###PARAM_ID_C3###",
+					"type": "###PARAM_TYPE_C3###"
+					, "initialValue": "###PARAM_INIT_VALUE###" 
+					, "initialValue": "###PARAM_INIT_COMBO_C3###" 
 
 					$$${!!!
-					,"ignore-this": "###IS_COMBO_PARAM###",
-					"items": [
+					,"ignore-this": "###IS_COMBO_PARAM###"
+					,"items": [
 						$$${
 							"###PARAM_COMBO_ID###"
 						$$$}

@@ -15,8 +15,8 @@
 					$$$ DOMAIN="PROPS" DELIMITER="," 
 					"###ID_C3###": 
 					{
-						"name": "###NAME###",
-						"desc": "###DESCRIPTION###"
+						"name": "###NAME###"
+						,"desc": "###DESCRIPTION###"
 					}
 					$$$
 				},
@@ -24,7 +24,7 @@
 				"aceCategories": 
 				{
 					$$$ DOMAIN="ACE" DELIMITER="," 
-					"###CATEGORY_ID###": "###CATEGORY_NAME_C3###"
+					"###CATEGORY_ID###": "###CATEGORY_NAME###"
 					$$$
 				},
 				
@@ -44,10 +44,12 @@
 						{
 							$$${
 							"###PARAM_ID_C3###": 
-							{ "name": "###PARAM_LABEL###", "desc": "###PARAM_DESCRIPTION###"
+							{ 
+								"name": "###PARAM_LABEL###"
+								,"desc": "###PARAM_DESCRIPTION###"
 								$$${!!!
-								, "ignore-this": "###IS_COMBO_PARAM###",
-									"items": {
+								,"ignore-this": "###IS_COMBO_PARAM###"
+									,"items": {
 									$$${
 										"###PARAM_COMBO_ID###": "###PARAM_COMBO_TEXT###"
 									$$$}
