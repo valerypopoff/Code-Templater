@@ -1,0 +1,62 @@
+*
+{
+  margin: 0;
+  font-family: Arial, Verdana, sans-serif;
+}
+
+form
+{
+  width: 60%;
+  margin: 30px;
+}
+
+form H1
+{
+  margin-bottom: 10px;  
+  font-weight: bolder;
+}
+
+form p
+{
+  margin-bottom: 25px;   
+  line-height: 1.4em;
+}
+
+.wrapper
+{
+  background-color: #9fe1ff; 
+  margin-bottom: 10px;
+  
+  padding-left: 20px;
+  padding-top: 15px;
+  padding-bottom: 30px;
+  padding-right: 30px;
+
+  border-radius: 5px;
+}
+
+.wrapper H2
+{
+  margin-bottom: 10px;
+}
+
+#submit
+{
+  min-width: 50%;
+  min-height: 2.3em;
+  font-size: 1.2em
+}
+
+#progress_block
+{
+  display: none;
+  
+  margin-top: 25px;
+}
+
+progress
+{
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+}
