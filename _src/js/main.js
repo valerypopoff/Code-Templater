@@ -1,31 +1,31 @@
 $( document ).ready(function() 
 {
-	var templates;
-	var instructions;
+  var templates;
+  var instructions;
 
-	document.getElementById('templates').onchange = function(e) 
-	{
-		templates = e.target.files;		
-		//console.log( templates)
-	}
+  document.getElementById('templates').onchange = function(e) 
+  {
+    templates = e.target.files;   
+    //console.log( templates)
+  }
 
-	document.getElementById('instructions').onchange = function(e) 
-	{
-		instructions = e.target.files;		
-	}
+  document.getElementById('instructions').onchange = function(e) 
+  {
+    instructions = e.target.files;    
+  }
 
-	var form = document.forms[0];
-	form.onsubmit = function(event) 
-	{    
+  var form = document.forms[0];
+  form.onsubmit = function(event) 
+  {    
     event.preventDefault();
-		uploadFiles();
-	};
+    uploadFiles();
+  };
 
 
-	function uploadFiles()
-	{
-		if( templates === undefined || instructions === undefined )
-		return;
+  function uploadFiles()
+  {
+    if( templates === undefined || instructions === undefined )
+    return;
     
     $('#submit').attr("disabled","disabled");
     $("#progress_block").css("display","block");
@@ -35,16 +35,16 @@ $( document ).ready(function()
 
     
     var data = new FormData();
-		
-		for (var i in templates)
-		{
-			data.append("templates", templates[i]);
-		};
+    
+    for (var i in templates)
+    {
+      data.append("templates", templates[i]);
+    };
 
-		for (var i in instructions)
-		{
-			data.append("instructions", instructions[i]);
-		};
+    for (var i in instructions)
+    {
+      data.append("instructions", instructions[i]);
+    };
 
 
 
@@ -81,7 +81,8 @@ $( document ).ready(function()
       success: function(data)
       {
         console.log("ajaxed successfully");
-        window.location.href = '/download' + "/" + data;
+        //window.location.href = '/download' + "/" + data;
+        window.location.href = '/download';
       }
     });
     

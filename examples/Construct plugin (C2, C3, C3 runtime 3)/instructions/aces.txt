@@ -60,55 +60,55 @@
 
 	
 	// Params
-	
-	// About Combo parameters
-	// If there's at least one combo parameter in parameters list, every parameter 
-	// must have "IS_COMBO_PARAM" filed. Regular parameters must have this field empty. 
-	// Combo parameters must have this field not empty. This is how the templater 
-	// knows which parameter is a combo parameter (it can't see the values, only field names).
+	{
+		// About Combo parameters
+		// If there's at least one combo parameter in parameters list, every parameter 
+		// must have "IS_COMBO_PARAM" filed. Regular parameters must have this field empty. 
+		// Combo parameters must have this field not empty. This is how the templater 
+		// knows which parameter is a combo parameter (it can't see the values, only field names).
 
-	// About parameters in general
-	// All parameters inside of ACE must have the same set of fields so the templater works 
-	// correctly. That's why a non-combo parameter has @@@PARAM_INIT_COMBO_C3 and 
-	// @@@PARAM_INIT_COMBO_C2 that don't apply. And that's why a combo parameter has 
-	// @@@PARAM_INIT_VALUE that is only needed for non-combo parameters. There MUST be specified 
-	// NO VALUES for the fields that don't apply so that they are ignored by the templater.
-	
+		// About parameters in general
+		// All parameters inside of ACE must have the same set of fields so the templater works 
+		// correctly. That's why a non-combo parameter has @@@PARAM_INIT_COMBO_C3 and 
+		// @@@PARAM_INIT_COMBO_C2 that don't apply. And that's why a combo parameter has 
+		// @@@PARAM_INIT_VALUE that is only needed for non-combo parameters. There MUST be specified 
+		// NO VALUES for the fields that don't apply so that they are ignored by the templater.
+		
 
-	// Non-combo parapeter
-	@@@IS_COMBO_PARAM
-	@@@PARAM_TYPE_C2 		StringParam
-	@@@PARAM_TYPE_C3 		string
-	@@@PARAM_ID_C3 			alert-text
-	@@@PARAM_LABEL 			Alert text
-	@@@PARAM_DESCRIPTION	Enter alert message.
-	@@@PARAM_INIT_VALUE		\"Hello world\"
-	@@@PARAM_INIT_COMBO_C3
-	@@@PARAM_INIT_COMBO_C2
+		// Non-combo parapeter
+		@@@IS_COMBO_PARAM
+		@@@PARAM_TYPE_C2 		StringParam
+		@@@PARAM_TYPE_C3 		string
+		@@@PARAM_ID_C3 			alert-text
+		@@@PARAM_LABEL 			Alert text
+		@@@PARAM_DESCRIPTION	Enter alert message.
+		@@@PARAM_INIT_VALUE		\"Hello world\"
+		@@@PARAM_INIT_COMBO_C3
+		@@@PARAM_INIT_COMBO_C2
 
 
 
-	@@@PARAM_COMBO_ID		dont-care
-	@@@PARAM_COMBO_TEXT		And I don't care
+		@@@PARAM_COMBO_ID		dont-care
+		@@@PARAM_COMBO_TEXT		And I don't care
 
-	@@@PARAM_COMBO_ID		dont-call-me
-	@@@PARAM_COMBO_TEXT		And don't call me Shirley
+		@@@PARAM_COMBO_ID		dont-call-me
+		@@@PARAM_COMBO_TEXT		And don't call me Shirley
 
-	@@@PARAM_COMBO_ID		so-kiss-me
-	@@@PARAM_COMBO_TEXT		So kiss me darling
+		@@@PARAM_COMBO_ID		so-kiss-me
+		@@@PARAM_COMBO_TEXT		So kiss me darling
 
-	
-	// combo parapeter
-	@@@IS_COMBO_PARAM		true or whatever that is not an empty string
-	@@@PARAM_TYPE_C2 		ComboParam
-	@@@PARAM_TYPE_C3 		combo
-	@@@PARAM_ID_C3 			alert-add-variants
-	@@@PARAM_LABEL 			What to add
-	@@@PARAM_DESCRIPTION	What to add to the alert message.
-	@@@PARAM_INIT_VALUE
-	@@@PARAM_INIT_COMBO_C3	dont-call-me
-	@@@PARAM_INIT_COMBO_C2	1
-	
+		
+		// combo parapeter
+		@@@IS_COMBO_PARAM		true or whatever that is not an empty string
+		@@@PARAM_TYPE_C2 		ComboParam
+		@@@PARAM_TYPE_C3 		combo
+		@@@PARAM_ID_C3 			alert-add-variants
+		@@@PARAM_LABEL 			What to add
+		@@@PARAM_DESCRIPTION	What to add to the alert message.
+		@@@PARAM_INIT_VALUE
+		@@@PARAM_INIT_COMBO_C3	dont-call-me
+		@@@PARAM_INIT_COMBO_C2	1
+	}
 
 	###SCRIPT
 	Alert(alert_msg, combo)

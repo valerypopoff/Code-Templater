@@ -1,7 +1,7 @@
 var http = 			require('http');
 var url = 			require('url');
-var static = 		require('node-static');
-var file = 			new static.Server('.');
+//var static = 		require('node-static');
+//var file = 			new static.Server('.');
 var formidable =	require('formidable');
 var fs = 			require('fs');
 var path = 			require('path');
@@ -15,6 +15,7 @@ var fse =			require('fs-extra');
 eval(fs.readFileSync('./js/routines-tiny.js')+'');
 eval(fs.readFileSync('./js/routines.js')+'');
 
+var ready_zip = undefined;
 
 var app = express();
 app.use(express.static('public'));
@@ -39,12 +40,19 @@ app.use(function (req, res, next)
 
 app.post('/upload', function(req, res) 
 {
-	var folder_for_results = "Result";
+	ready_zip = undefined;
+	
+	//var folder_for_results = "Result";
+	var folder_for_results = path.join( "./", "Result");
 	var randomname = RandomName(16);
-	var resultpath = path.join( "./", folder_for_results, randomname );
+	var resultpath = path.join( folder_for_results, randomname );
+
+	// Create directory if it doesn't exist
+	if( !fs.existsSync(folder_for_results))
+	fs.mkdirSync(folder_for_results);
 
 	// Delete all old files that are older than 2 minutes
-	RemoveJunk( path.join( "./", folder_for_results), 2 );
+	RemoveJunk( folder_for_results, 2 );
 
 
 	console.log("before form");
@@ -95,7 +103,9 @@ app.post('/upload', function(req, res)
 				deleteFolderRecursive( path.join(resultpath, "templates") );
 				deleteFolderRecursive( path.join(resultpath, "instructions") );
 
-				res.end(zipname);
+				ready_zip = zipname;
+				//res.end(zipname);
+				res.end();
 			});
 		}
 		
@@ -107,7 +117,21 @@ app.post('/upload', function(req, res)
 });
 
 
-router.get('/download/:filepath(*)', function(req, res, next)
+router.get('/download', function(req, res, next)
+{ 
+	if( ready_zip !== undefined )
+	{
+		console.log( "downloading...: " + ready_zip );
+		res.download(ready_zip, "result.zip");
+	}
+	else
+	{
+		res.redirect('/');
+	}
+});
+
+
+/*router.get('/download/:filepath(*)', function(req, res, next)
 { 
 	if( req.params.filepath != "" )
 	{
@@ -119,7 +143,7 @@ router.get('/download/:filepath(*)', function(req, res, next)
 		res.redirect('/');
 	}
 });
-
+*/
 
 
 app.get('/', function(req, res) 
@@ -127,27 +151,6 @@ app.get('/', function(req, res)
 	res.sendFile(__dirname + '/index.html');
 });
 
-/*
-app.get('/download', function(req, res) 
-{
-	//res.download('./server.js');
-	
-	console.log("GOT TO DOWNLOAD: " + ready_zipname);
-	
-	if( ready_zipname != "" )
-	{
-		console.log("dowloading...");
-		res.download('./server.js');
-		//res.download( path.join(__dirname, ready_zipname), "result.zip" );
-	}
-	else
-	{
-		//res.download('./server.js');
-
-		//res.redirect('/');
-	}
-});
-*/
 
 
 var listener = app.listen(process.env.PORT, function(){});

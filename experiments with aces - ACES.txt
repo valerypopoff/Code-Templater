@@ -1,0 +1,33 @@
+{
+        "ACES_C2_EDITTIME": "Action",
+        "ACES_C3_JSON_TYPE": "actions",
+        "CATEGORY_ID": "super-custom",
+        "CATEGORY_NAME": "Super custom",
+        "ID_C2": "0",
+        "ID_C3": "do-alert",
+        "FLAGS_C2": "af_none",
+        "HIGHLIGHT": "true",
+        "LIST_NAME": "Do alert",
+        "DISPLAY_STRING": "Do alert with message {0} and \\\"{1}\\\"",
+        "DESCRIPTION": "Do a dummy alert.",
+        "SCRIPT_NAME": "Alert",
+        "IS_COMBO_PARAM": ["", "true or whatever that is not an empty string"],
+        "PARAM_TYPE_C2": ["StringParam", "ComboParam"],
+        "PARAM_TYPE_C3": ["string", "combo"],
+        "PARAM_ID_C3": ["alert-text", "alert-add-variants"],
+        "PARAM_LABEL": ["Alert text", "What to add"],
+        "PARAM_DESCRIPTION": ["Enter alert message.", "What to add to the alert message."],
+        "PARAM_INIT_VALUE": ["\\\"Hello world\\\"", ""],
+        "PARAM_INIT_COMBO_C3": ["", "dont-call-me"],
+        "PARAM_INIT_COMBO_C2": ["", "1"],
+        
+        "PARAM_COMBO_ID": [
+            "dont-care", 
+            "dont-call-me", 
+            "so-kiss-me"
+            ],
+        
+        "PARAM_COMBO_TEXT": ["And I don't care", "And don't call me Shirley", "So kiss me darling"],
+        
+        "SCRIPT": "\tAlert(alert_msg, combo)\n\t{\n\t\tvar combo_text;\n\t\tswitch( combo )\n\t\t{\n\t\t\tcase 0: combo_text = \"And I don't care\"; break;\n\t\t\tcase 1: combo_text = \"And don't call me Shirley\"; break;\n\t\t\tcase 2: combo_text = \"So kiss me darling\"; break;\n\t\t}\n\n\t\talert(alert_msg + \" \" + combo_text);\n\t\talert(\"By the way, first plugin property = \" + this.testProperty);\n\t\talert(\"By the way, 512 is large = \" + this.CNDS.IsLargeNumber(512));\n\n\t\t// These two functions will log to the console\n\t\tthis.Foo( 1024 );\n\t\tthis.Bar( \"One thousand and twenty four\" );\n\t}"
+}

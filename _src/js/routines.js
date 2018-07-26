@@ -633,7 +633,7 @@ function GetInstructionsFromFileContent( content )
 
 	function StoreProperly()
 	{
-		var counter = domain_counter[current_domain];
+		var current_domain_part = domain_counter[current_domain];
 
 		// Create domain if is doesn't exist
 		if( instructions[current_domain] === undefined )
@@ -641,26 +641,28 @@ function GetInstructionsFromFileContent( content )
 		//instructions[current_domain] = {}; // domain is object
 
 		// Create domain part if it doesn't exist
-		if( instructions[current_domain][ counter ] === undefined )
-		instructions[current_domain][ counter ] = {};
+		if( instructions[current_domain][ current_domain_part ] === undefined )
+		instructions[current_domain][ current_domain_part ] = {};
 
-		// If the key is empty
-		if( instructions[current_domain][ counter ][current_name] === undefined )
+		// If the key is empty, put the key
+		if( instructions[current_domain][ current_domain_part ][current_name] === undefined )
 		{
-			instructions[current_domain][ counter ][current_name] = current_content;
+			instructions[current_domain][ current_domain_part ][current_name] = current_content;
 		} 
+		// If key is not empty, put the key the end of the array
 		else
 		{
-			// If the key is an array, not a string
-			if( Array.isArray(instructions[current_domain][ counter ][current_name]) )
+			// If the key is an array, just push new content
+			if( Array.isArray(instructions[current_domain][ current_domain_part ][current_name]) )
 			{
-				//if( instructions[current_domain][ counter ][current_name].indexOf(current_content) == -1 )
-				instructions[current_domain][ counter ][current_name].push( current_content );
+				//if( instructions[current_domain][ current_domain_part ][current_name].indexOf(current_content) == -1 )
+				instructions[current_domain][ current_domain_part ][current_name].push( current_content );
 			}
-			else // Make array
+			// If it's not an array yet, make it array
+			else 
 			{
-				//if( instructions[current_domain][ counter ][current_name] != current_content )
-				instructions[current_domain][ counter ][current_name] = [ instructions[current_domain][ counter ][current_name], current_content ];
+				//if( instructions[current_domain][ current_domain_part ][current_name] != current_content )
+				instructions[current_domain][ current_domain_part ][current_name] = [ instructions[current_domain][ current_domain_part ][current_name], current_content ];
 			} 
 		}
 	}
@@ -680,6 +682,7 @@ function GetInstructionsFromFileContent( content )
 			//brace_started = true;
 			open_count++;
 
+			// May be "" if no dmain specified
 			current_domain = lines[i].split(braceopen)[1].trim();
 
 			// If this is new domain, create one, and count 0
@@ -778,8 +781,173 @@ function GetInstructionsFromFileContent( content )
 	return instructions;
 }
 
+/*
+function GetInstructionsFromFileContent( content )
+{
+	var lines = content.split(/\r?\n/);
+
+	var instructions = {};	
+	var hash_started = false;
+	var brace_started = false;
+	var open_count = 0;
+	var close_count = 0;
+	var current_name = "";
+	var current_content = "";
+	var content_lines = 0;
+	var current_domain = "";
+	
+	// It remembers how many times certain domain was described in the file 
+	var domain_counter = {"":0};
+
+	function StoreProperly()
+	{
+		var counter = domain_counter[current_domain];
+
+		// Create domain if is doesn't exist
+		if( instructions[current_domain] === undefined )
+		instructions[current_domain] = []; // domain is array
+		//instructions[current_domain] = {}; // domain is object
+
+		// Create domain part if it doesn't exist
+		if( instructions[current_domain][ counter ] === undefined )
+		instructions[current_domain][ counter ] = {};
+
+		// If the key is empty
+		if( instructions[current_domain][ counter ][current_name] === undefined )
+		{
+			instructions[current_domain][ counter ][current_name] = current_content;
+		} 
+		else
+		{
+			// If the key is an array, not a string
+			if( Array.isArray(instructions[current_domain][ counter ][current_name]) )
+			{
+				//if( instructions[current_domain][ counter ][current_name].indexOf(current_content) == -1 )
+				instructions[current_domain][ counter ][current_name].push( current_content );
+			}
+			else // Make array
+			{
+				//if( instructions[current_domain][ counter ][current_name] != current_content )
+				instructions[current_domain][ counter ][current_name] = [ instructions[current_domain][ counter ][current_name], current_content ];
+			} 
+		}
+	}
+	
+	for( var i=0; i < lines.length; i++ ) 
+	{
+		// Ignoring lines starting with // that aren't in the ### block
+		if( !hash_started && lines[i].trim()[0] == "/" && lines[i].trim()[1] == "/"  )
+		{
+			//console.log( "IGNORING: " + lines[i] );
+			continue;
+		}
+
+		// {DOMAIN NAME}
+		if( !hash_started && lines[i].trim()[0] == braceopen && open_count == close_count )
+		{
+			//brace_started = true;
+			open_count++;
+
+			// May be "" if no dmain specified
+			current_domain = lines[i].split(braceopen)[1].trim();
+
+			// If this is new domain, create one, and count 0
+			if( domain_counter[current_domain] === undefined )
+			{
+				domain_counter[current_domain] = 0;
+			}
+			// If this is an existing domain
+			else
+			{
+				// Don't increment for basic "" domain
+				if( current_domain != "" )
+				domain_counter[current_domain]++;
+			}
+
+			continue;
+		}
+
+				// Ignore inner domain {
+				if( !hash_started && lines[i].trim()[0] == braceopen && open_count != close_count )
+				{
+					open_count++;
+					continue;
+				}
+		
+				// Ignore inner domain }
+				if( !hash_started && lines[i].trim()[0] == braceclose && open_count != close_count+1 )
+				{
+					close_count++;
+					continue;
+				}
 
 
+		// END OF DOMAIN
+		if( !hash_started && lines[i].trim()[0] == braceclose && open_count == close_count+1 )
+		{
+			//brace_started = false;
+			close_count++;
+			
+			current_domain = "";
+			
+			continue;
+		}
+
+
+		// @@@
+		if( lines[i].indexOf(atkey) > -1 )
+		{
+			var arr = lines[i].trim().split(/[\s\t]+(.*)/);
+			
+			current_name = arr[0].split(atkey)[1];
+			current_content = (arr[1] !== undefined ? arr[1] : "").trim();
+
+			StoreProperly();
+			current_name = "";
+			current_content = "";
+
+			continue;
+		}
+
+
+		// OPEN ###
+		if( !hash_started && lines[i].indexOf(hashkey) > -1 )
+		{			
+			hash_started = true;
+
+			current_name = lines[i].split(hashkey)[1].trim();
+
+			continue;
+		}
+
+		if( hash_started )
+		{
+			//console.log( lines[i] );
+			if( lines[i].indexOf(hashkey) == -1 )
+			{
+				if( content_lines > 0 )
+				current_content += "\n";				
+
+				current_content += lines[i];
+				content_lines++;
+			} else // CLOSE ###
+			{				
+				StoreProperly();
+				current_name = "";
+				current_content = "";
+				content_lines = 0;
+
+				hash_started = false;
+			}
+			
+			continue;
+		}
+	}	
+
+	return instructions;
+}
+
+*/
 
 
 

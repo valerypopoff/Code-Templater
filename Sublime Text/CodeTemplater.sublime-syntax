@@ -1,0 +1,75 @@
+%YAML 1.2
+---
+name: Valerypopoff Code Templater
+file_extensions: [txt]
+scope: source.ssraw
+
+variables:
+  SPACE: '[\s\t]*'
+  VAR_DECLARATION: keyword.control.c
+
+contexts:
+  main:
+    - match: ^{{SPACE}}({{{SPACE}}[^\s\t{}]*){{SPACE}}$
+      scope: entity.name.class
+      push: domain
+    - include: main-nodomain
+
+
+  domain:
+    - meta_content_scope: source.ssraw
+    - match: ^{{SPACE}}}{{SPACE}}$
+      scope: entity.name.class
+      pop: true
+    - include: main-nodomain
+
+
+  main-nodomain:
+    - match: ^{{SPACE}}{{{SPACE}}[^\s\t{}]*{{SPACE}}$
+      scope: comment
+      push: inline-brackets  
+
+    - match: ^{{SPACE}}\/\/{{SPACE}}.*
+      push: comment-line
+    
+    - match: ^{{SPACE}}(@@@[^\s\t]+)
+      scope: keyword.control.c
+      push: singleline
+    
+    - match: ^{{SPACE}}(###[^\s\t]+)
+      scope: keyword.control.c
+      push: multiline
+
+
+  inline-brackets:
+    - match: ^{{SPACE}}}{{SPACE}}[^\s\t{}]*{{SPACE}}$
+      scope: comment
+      pop: true
+    - include: main-nodomain
+
+
+
+  multiline:
+    - match: ^{{SPACE}}(###){{SPACE}}$
+      scope: keyword.control.c
+      pop: true
+    - match: (.*)
+      push: Packages/JavaScript/JavaScript.sublime-syntax
+      with_prototype:
+        - match: (?=(^[\s\t]*(###)[\s\t]*$))
+          scope: keyword.control.c
+          pop: true
+
+  comment-line:
+    - meta_scope: comment
+    - match: $
+      pop: true
+
+  singleline:
+    - meta_content_scope: constant.character.escape.c
+    - match: $
+      pop: true
+
+
+
+
