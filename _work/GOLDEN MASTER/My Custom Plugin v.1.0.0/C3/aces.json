@@ -1,0 +1,86 @@
+{
+"custom":
+{
+	"conditions":
+	[
+		{  
+			"id": "is-large-number",
+			"c2id": 0,
+			"scriptName": "IsLargeNumber",
+			"expressionName": "IsLargeNumber",
+			"highlight": true,
+
+			"params": 
+			[
+				{ 
+					"id": "comparison-options",
+					"type": "any"
+					, "initialValue": "50" 
+
+
+				},
+				{ 
+					"id": "some-param",
+					"type": "any"
+
+
+				}
+			]				
+		}
+	],
+	"expressions":
+	[
+		{  
+			"id": "double",
+			"c2id": 0,
+			"scriptName": "Double",
+			"expressionName": "Double",
+			"highlight": true,
+			"returnType": "any",
+			"isVariadicParameters": true,
+
+			"params": 
+			[
+			]				
+		}
+	]
+},
+"super-custom":
+{
+	"actions":
+	[
+		{  
+			"id": "do-alert",
+			"c2id": 0,
+			"scriptName": "Alert",
+			"expressionName": "Alert",
+			"highlight": true,
+
+			"params": 
+			[
+				{ 
+					"id": "alert-text",
+					"type": "string"
+					, "initialValue": "\"Hello world\"" 
+
+
+				},
+				{ 
+					"id": "alert-add-variants",
+					"type": "combo"
+					, "initialValue": "dont-call-me" 
+
+					,"ignore-this": "true or whatever that is not an empty string"
+					,"items": [
+							"dont-care",
+							"dont-call-me",
+							"so-kiss-me"
+							]
+
+				}
+			]				
+		}
+	]
+}
+
+}

@@ -1,3 +1,11 @@
+// Any line starting with // is a comment. Multiline comments like this: /*don't work*/
+
+
+// This is a named set of variables. The example template that goes with this instruction
+// relies on you describing every ACE in a separate set named ACE.
+
+// A named set — just like any other bracket group — limits a namespace. 
+
 {	ACE
 	
 	@@@ACES_C2_EDITTIME		Condition
@@ -16,22 +24,57 @@
 	@@@SCRIPT_NAME 			IsLargeNumber
 
 
-	// Params
-		
-	@@@PARAM_TYPE_C2 		AnyTypeParam
-	@@@PARAM_TYPE_C3 		any
-	@@@PARAM_ID_C3 			comparison-options
-	@@@PARAM_LABEL 			Number
-	@@@PARAM_DESCRIPTION	Number to test if greater than 100.
-	@@@PARAM_INIT_VALUE		50
-	
-	@@@PARAM_TYPE_C2 		AnyTypeParam
-	@@@PARAM_TYPE_C3 		any
-	@@@PARAM_ID_C3 			some-param
-	@@@PARAM_LABEL 			Some param
-	@@@PARAM_DESCRIPTION	An exessive value.
-	@@@PARAM_INIT_VALUE		
+	// This is a good practice to enclose parameters description in a bracket group
+	// so it's guaranteed that parameters are in a separate namespace.
 
+	// Params
+	{
+		// Even though you have multiple parameters in the same namespace, you don't have to 
+		// explicitly declare the begining of every one. That's because Templater knows when 
+		// the new parameter description starts.
+
+		// Templater knows that this is the new parameter (or any other entity) when
+		// it encounters a variable that has already been declared in a current namespace.
+
+
+		@@@PARAM_TYPE_C2 		AnyTypeParam
+		@@@PARAM_TYPE_C3 		any
+		@@@PARAM_ID_C3 			comparison-options
+		@@@PARAM_LABEL 			Number
+		@@@PARAM_DESCRIPTION	Number to test if greater than 100.
+		@@@PARAM_INIT_VALUE		50
+		
+
+		// @@@PARAM_TYPE_C2 is the first variable that has already been declared earlier 
+		// in a current namespace. So here Templater knows that everything that goes below — 
+		// corresponds to the second entity. 
+		
+		// Templater will also remember @@@PARAM_TYPE_C2 as an entity delimiter. So it will 
+		// only think that you're describing the third parameter when it encounters 
+		// @PARAM_TYPE_C2 again. Until then, EVERYTHING will be considered
+		// a part of the second entity.
+		
+		// Thus, you must start paramater variables list with a variable that every 
+		// parameter in a given namespace has. If you wish, you can start every paramater 
+		// variables list with a special variable that's never used in the template. 
+		// Like: @@@PARAM_START
+
+		// Since you let Templater know where the new parameter starts, the order of the rest 
+		// of the variables doesn't matter.
+		// VVVVVVVVVVVV
+		@@@PARAM_TYPE_C2 		AnyTypeParam
+		@@@PARAM_TYPE_C3 		any
+		@@@PARAM_ID_C3 			some-param
+		@@@PARAM_LABEL 			Some param
+		@@@PARAM_DESCRIPTION	An exessive value.
+		@@@PARAM_INIT_VALUE		
+
+		// Since namespaces are limited to the { bracket groups }, Templater starts counting 
+		// entities in the begining of the namespace and ends counting them in the end of the 
+		// namespace. When you open or closing a bracket, Templater starts counting from the 
+		// begining. That's why ###SCRIPT below is considered to be a part of the very first 
+		// entity and goes with everything that was declared before parameters bracket group.
+	}
 	
 	###SCRIPT
 	IsLargeNumber(number)
@@ -61,33 +104,29 @@
 	
 	// Params
 	{
-		// About Combo parameters
-		// If there's at least one combo parameter in parameters list, every parameter 
-		// must have "IS_COMBO_PARAM" filed. Regular parameters must have this field empty. 
-		// Combo parameters must have this field not empty. This is how the templater 
-		// knows which parameter is a combo parameter (it can't see the values, only field names).
-
-		// About parameters in general
-		// All parameters inside of ACE must have the same set of fields so the templater works 
-		// correctly. That's why a non-combo parameter has @@@PARAM_INIT_COMBO_C3 and 
-		// @@@PARAM_INIT_COMBO_C2 that don't apply. And that's why a combo parameter has 
-		// @@@PARAM_INIT_VALUE that is only needed for non-combo parameters. There MUST be specified 
-		// NO VALUES for the fields that don't apply so that they are ignored by the templater.
-		
-
-		// Non-combo parapeter
-		@@@IS_COMBO_PARAM
 		@@@PARAM_TYPE_C2 		StringParam
 		@@@PARAM_TYPE_C3 		string
 		@@@PARAM_ID_C3 			alert-text
 		@@@PARAM_LABEL 			Alert text
 		@@@PARAM_DESCRIPTION	Enter alert message.
 		@@@PARAM_INIT_VALUE		\"Hello world\"
-		@@@PARAM_INIT_COMBO_C3
-		@@@PARAM_INIT_COMBO_C2
+		
+		@@@PARAM_TYPE_C2 		ComboParam
+		@@@PARAM_TYPE_C3 		combo
+		@@@PARAM_ID_C3 			alert-add-variants
+		@@@PARAM_LABEL 			What to add
+		@@@PARAM_DESCRIPTION	What to add to the alert message.
+		@@@PARAM_INIT_COMBO_C3	dont-call-me
+		@@@PARAM_INIT_COMBO_C2	1
 
-
-
+		// @@@PARAM_COMBO_ID and @@@PARAM_COMBO_TEXT correspond to the second parameter so they 
+		// must go AFTER the regular parameter variables — that is, after the line on which 
+		// Templater knows that you're describing the second parameter (in this example this
+		// is the line with @@@PARAM_TYPE_C2).
+		// 
+		// If you put @@@PARAM_COMBO_ID or @@@PARAM_COMBO_TEXT before @@@PARAM_TYPE_C2, 
+		// Templater will think these are the first parameter variables.
+		
 		@@@PARAM_COMBO_ID		dont-care
 		@@@PARAM_COMBO_TEXT		And I don't care
 
@@ -96,18 +135,6 @@
 
 		@@@PARAM_COMBO_ID		so-kiss-me
 		@@@PARAM_COMBO_TEXT		So kiss me darling
-
-		
-		// combo parapeter
-		@@@IS_COMBO_PARAM		true or whatever that is not an empty string
-		@@@PARAM_TYPE_C2 		ComboParam
-		@@@PARAM_TYPE_C3 		combo
-		@@@PARAM_ID_C3 			alert-add-variants
-		@@@PARAM_LABEL 			What to add
-		@@@PARAM_DESCRIPTION	What to add to the alert message.
-		@@@PARAM_INIT_VALUE
-		@@@PARAM_INIT_COMBO_C3	dont-call-me
-		@@@PARAM_INIT_COMBO_C2	1
 	}
 
 	###SCRIPT
@@ -133,6 +160,9 @@
 }
 
 {	ACE
+
+	// Every variable in this named set is declared only once, so there's no need to 
+	// introduce bracket groups.
 	
 	@@@ACES_C2_EDITTIME		Expression
 	@@@ACES_C3_JSON_TYPE	expressions

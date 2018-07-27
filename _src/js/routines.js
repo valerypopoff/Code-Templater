@@ -16,21 +16,12 @@ function DoMagic( dirname, newdirname, extfilter, instructions_dir, callback )
 	//console.log( JSON.stringify(instructions) );
 	//return;
 
-
-	// Delete directory if exists
-	/*
-	if( fs.existsSync(newdirname) )
-	{
-		console.log("DELETING");
-		deleteFolderRecursive(newdirname);
-	}
-	*/
-
 	// Create directory if it doesn't exist
 	if( !fs.existsSync(newdirname) )
 	fs.mkdirSync(newdirname);
 		
-		
+	
+	
 	// Asynchronously copy a source folder to a new folder
 	ncp.limit = 16;
 	ncp(dirname, newdirname, function(error)
@@ -45,10 +36,9 @@ function DoMagic( dirname, newdirname, extfilter, instructions_dir, callback )
 		zipdir( newdirname, { saveTo: zipname }, function (err, buffer) 
 		{
 			callback( zipname );
-			//res.download( path.join(__dirname, zipname) ); 
 		});
+		
 	});
-	
 }
 
 
@@ -57,7 +47,6 @@ function DoMagic( dirname, newdirname, extfilter, instructions_dir, callback )
 function ConvertDir( dirname, extfilter, instructions )
 {
 	// Rename directory if it has ###variables### in the name -------------------
-	//console.log("Trying to rename");
 	//var newdirname = dirname;
 	var newdirname = ConvertText(dirname, instructions);
 	fs.renameSync(dirname, newdirname);
@@ -71,8 +60,6 @@ function ConvertDir( dirname, extfilter, instructions )
 		var stat = fs.statSync( Path ); 
 	    if( stat.isFile() )
 	    {
-			//console.log( "'%s' is a file.", Path );
-			//console.log( "ext is: _" + path.extname(Path) + "_" );								
 			if( extfilter.indexOf(path.extname(Path)) == -1 )
 			{
 				ConvertFile( Path, instructions );
@@ -82,8 +69,7 @@ function ConvertDir( dirname, extfilter, instructions )
 	    }
 	    else if( stat.isDirectory() )
 		{
-	        //console.log( "'%s' is a directory.", Path );
-	        ConvertDir( Path, extfilter, instructions/*, ++level*/ );
+	        ConvertDir( Path, extfilter, instructions );
 		} 
     });
 }
@@ -115,9 +101,6 @@ function ConvertText( text, instructions )
 		if( !buk_started && lines[i].indexOf(bukkey) > -1 && lines[i].indexOf(bukopen) == -1 && lines[i].indexOf(bukclose) == -1)
 		{
 			buk_started = true;
-
-			//domain = GetWhatInQuotes(lines[i], 0);
-			//delimiter = GetWhatInQuotes(lines[i], 1);
 
 			domain = GetDomainName(lines[i]);
 			delimiter = GetDelimiter(lines[i]);
@@ -161,6 +144,7 @@ function ConvertText( text, instructions )
 							instructions: instructions, 
 							domain: "", 
 							domain_part: 0, 
+							delimiter: delimiter,
 							iteration: 0,
 							lookup: [0]
 						
@@ -218,28 +202,37 @@ function StartBuckRec( opts )
 }
 
 
+function PushDelimiter(result_lines, delimiter)
+{
+	//var temp;
+
+	if( result_lines[ result_lines.length-1 ] === undefined )
+		result_lines.push( Unescape(delimiter) );
+	else
+		result_lines[ result_lines.length-1 ] = result_lines[ result_lines.length-1 ] + Unescape(delimiter);
+
+	//return temp;
+}
+
+
 function ConvertBucklines( opts ) 
 {
+	//console.log( opts.real )
+	//console.log( opts.lines )
+	//console.log( "iter: " + opts.iteration )
+
 	var result_lines = [];
-
-	function PushDelimiter()
-	{
-		if( result_lines[ result_lines.length-1 ] === undefined )
-			result_lines.push( Unescape(opts.delimiter) );
-		else
-			result_lines[ result_lines.length-1 ] = result_lines[ result_lines.length-1 ] + Unescape(opts.delimiter);
-	}
-
 
 	var inner_lines = [];
 	var open_count = 0;
-	var not_iterate = false;
 	var close_count = 0;
+	var not_iterate = false;
 	var inner_lvl_opened = false;
 	var back_lookup_empty = true;
 
 	// To return
 	var max_different = 0;
+	var max_sub_different = 0;
 	var back_lookup = [opts.lookup];
 	var atleastone = false;
 
@@ -282,6 +275,9 @@ function ConvertBucklines( opts )
 				// No need to convert the content of ${{{ $}}} if this is not real
 				if( opts.real )
 				{
+					//console.log( "fake" )
+					//console.log(inner_lines.join("\n"));
+
 					var converted_future = ConvertBucklines({
 												lines: 			inner_lines,
 												instructions:	opts.instructions,
@@ -291,12 +287,16 @@ function ConvertBucklines( opts )
 												
 												// Fake Buckclines Always start with the parent lookup 
 												// but with the iteration 0 because we pretend there are no outer levels 
-												iteration: 		0,
+												//iteration: 		not_iterate ? opts.iteration : 0,
+												// CHEK
+												iteration: 		opts.iteration,
 												lookup: 		opts.lookup,
 												real: 			false
 											});
 
-
+					//console.log( "back_lookup.length: " + converted_future.back_lookup.length)
+					//console.log( "max_different: " + converted_future.max_different)
+					//console.log( "max_sub_different: " + converted_future.max_sub_different)
 
 					//----------------------------------------------------------------------------
 
@@ -309,45 +309,61 @@ function ConvertBucklines( opts )
 						var inner_iteration = 0;
 						var repeats_put = 0;
 
-						if( not_iterate )
+						if( not_iterate && converted_future.max_different > 0 )
 						{
 							// Repeat only once with the parent iteration
 							inner_iteration = opts.iteration;
 							converted_future.max_different = inner_iteration+1;
 						}
 
+						
 						while( inner_iteration < converted_future.max_different )
 						{
-							var converted = ConvertBucklines({
-															lines: 			inner_lines,
-															instructions:	opts.instructions,
-															domain: 		opts.domain,
-															delimiter: 		opts.delimiter,
-															level: 			opts.level+1,
-															iteration: 		inner_iteration,
-															lookup: 		converted_future.back_lookup[k],
-															real: 			opts.real
-														});
-
-
-							if( converted.atleastone || !opts.real )
+							var inner_sub_iteration = 0;
+							
+							while( inner_sub_iteration < 
+									(converted_future.max_sub_different == 0 ? 1 : converted_future.max_sub_different) 
+							)
 							{
-								if( repeats_put != 0 && opts.delimiter != "" )
-								PushDelimiter();
+								var converted = ConvertBucklines({
+													lines: 			inner_lines,
+													instructions:	opts.instructions,
+													domain: 		opts.domain,
+													delimiter: 		opts.delimiter,
+													level: 			opts.level+1,
+													iteration: 		inner_iteration,
 
-								result_lines = result_lines.concat( converted.result );
+													// if there's 0 subiterations in the future, pass undefined so 
+													// it doesn't consider it at all
+													sub_iteration: 	converted_future.max_sub_different == 0 ? undefined : inner_sub_iteration,
+													lookup: 		converted_future.back_lookup[k],
+													real: 			opts.real
+												});
 
-								repeats_put++;
-							}
+
+								if( converted.atleastone )
+								{
+									//console.log("atleastone");
+									if( repeats_put != 0 && opts.delimiter != "" )
+									PushDelimiter(result_lines,opts.delimiter);
+
+									result_lines = result_lines.concat( converted.result );
+
+									repeats_put++;
+								}
+
+								inner_sub_iteration++;
+							}	
 
 							inner_iteration++;
-						}	
+						}
 
-						if( converted_future.max_different == 0 )
-						continue;
 
-						if( k != times-1 )	
-						PushDelimiter(); 
+						// No delimiter needed if everything was empty
+						//if( converted_future.max_different == 0 )
+						//continue;
+						if( converted_future.max_different > 0 && k != times-1 )	
+						PushDelimiter(result_lines,opts.delimiter); 
 					}
 
 					// -----------------------------------------------------------------------
@@ -385,11 +401,13 @@ function ConvertBucklines( opts )
 								line: opts.lines[i],
 								instructions: opts.instructions, 
 								domain: opts.domain, 
+								delimiter: opts.delimiter,
 
 								// because this #var is the same in lookup[0], lookup[1], lookup[2] and so on 
 								domain_part: opts.lookup[0],
 
 								iteration: opts.iteration,
+								sub_iteration: opts.sub_iteration,
 								lookup: opts.lookup,
 								real: opts.real
 							}); 	
@@ -427,6 +445,9 @@ function ConvertBucklines( opts )
 			if( converted.max_different > max_different )
 			max_different = converted.max_different;			
 
+			if( converted.max_sub_different > max_sub_different )
+			max_sub_different = converted.max_sub_different;			
+
 			continue;
 		}
 
@@ -440,9 +461,13 @@ function ConvertBucklines( opts )
 	if(back_lookup_empty)
 	back_lookup = [];
 
+	//console.log( "max_different: " + max_different )
+	//console.log( "max_sub_different: " + max_sub_different )
+
 	return {
 				result: result_lines, 
 				max_different: max_different, 
+				max_sub_different: max_sub_different,
 				back_lookup: back_lookup,
 				atleastone: atleastone
 			};
@@ -450,7 +475,9 @@ function ConvertBucklines( opts )
 
 function ConvertLine( opts ) 
 {
-	//var cross_cutting = false;
+	//console.log( opts );
+	//console.log(opts.sub_iteration)
+
 	var back_lookup_empty = true;
 
 	// To return
@@ -458,6 +485,7 @@ function ConvertLine( opts )
 	var werehashes = false;
 	var persist_if_nothing = false;
 	var max_different = 0;
+	var max_sub_different = 0;
 	var back_lookup = [opts.lookup];
 
 
@@ -477,6 +505,7 @@ function ConvertLine( opts )
 
 
 		var key = str.substr(3,str.length-6).trim();
+		//console.log(key)
 		var cross_cutting = false;
 
 		// See if crosscutting
@@ -508,22 +537,38 @@ function ConvertLine( opts )
 
 		// It's Array, but key iteration doesn't exist
 		// Asking for an iteration of array that doesn't exist
-		// so it must return a blank string so iterations can stop
+		// so it must return a blank string 
 		if( Array.isArray(opts.instructions[opts.domain][opts.domain_part][key]) && 
 			opts.instructions[opts.domain][opts.domain_part][key][opts.iteration] === undefined )
 		{
 			return "";
 		}
 
+		if( opts.sub_iteration !== undefined &&
+			opts.instructions[opts.domain][opts.domain_part][key][opts.iteration][opts.sub_iteration] === undefined )
+		{
+			return "";
+		}
+
+		
+		//console.log( opts.line );
 
 
 		// If it's array
-		if( Array.isArray(opts.instructions[opts.domain][opts.domain_part][key]) )
+		//if( Array.isArray(opts.instructions[opts.domain][opts.domain_part][key]) )
 		{
 			// Set max_diferent and back_lookup even if the target value is empty
 			// because we only need it for FutureBuck analysis
 			if( opts.instructions[opts.domain][opts.domain_part][key].length > max_different )
 			max_different = opts.instructions[opts.domain][opts.domain_part][key].length;
+
+			//if( opts.sub_iteration !== undefined )
+			if( Array.isArray(opts.instructions[opts.domain][opts.domain_part][key][opts.iteration]) )
+			if( opts.instructions[opts.domain][opts.domain_part][key][opts.iteration].length > max_sub_different )
+			max_sub_different = opts.instructions[opts.domain][opts.domain_part][key][opts.iteration].length;
+
+			//console.log(key);
+			//console.log(max_sub_different);
 
 			back_lookup_empty = false;
 			back_lookup = AddLookup( back_lookup, MakeLookup( opts.domain, key, opts ) );
@@ -531,12 +576,36 @@ function ConvertLine( opts )
 
 			// Only set atleastone if string is not empty
 			// Cause if it's empty, it means that nothing was cpecified in the instruction for this particular iteration
-			var ret = opts.instructions[opts.domain][opts.domain_part][key][opts.iteration];
+			var ret = "";
+
+			if( opts.sub_iteration === undefined )
+			ret = opts.instructions[opts.domain][opts.domain_part][key][opts.iteration];
+			else
+			ret = opts.instructions[opts.domain][opts.domain_part][key][opts.iteration][opts.sub_iteration];
+
+			/*
+			if( Array.isArray(ret) )
+			{
+				var temp = "";
+
+				for( var i=0; i<ret.length; i++ )
+				{
+					temp = temp + ret[i];
+
+					// If rhis is not the kast string, put delimiter
+					if( i != ret.length-1 )
+					temp = temp + Unescape(opts.delimiter);
+				}
+
+				ret = temp;
+			} */
+
 			if( ret.length != 0 )
-				atleastone = true;
+			atleastone = true;
 			
 			return ret;
 		} 
+		/*
 		else // Not array
 		{
 			// Set max_diferent and back_lookup even if the target value is empty
@@ -567,18 +636,20 @@ function ConvertLine( opts )
 				return ret;			
 			}
 		} 
+		*/
 	})
 
 	// If nothing was found
 	if( back_lookup_empty )
 	back_lookup = [];
 	
-	//console.log(back_lookup)
+	
 	return { 
 			atleastone: atleastone, 
 			werehashes: werehashes, 
 			persist_if_nothing: persist_if_nothing,
 			max_different: max_different, 
+			max_sub_different: max_sub_different, 
 			back_lookup: back_lookup,
 			result: result 
 		};
@@ -620,51 +691,98 @@ function GetInstructionsFromFileContent( content )
 
 	var instructions = {};	
 	var hash_started = false;
-	var brace_started = false;
 	var open_count = 0;
 	var close_count = 0;
-	var current_name = "";
+	var current_key = "";
 	var current_content = "";
 	var content_lines = 0;
 	var current_domain = "";
+	var current_iteration = 0;
+	var boundary_key = undefined;
+	var namespace = [];
 	
 	// It remembers how many times certain domain was described in the file 
 	var domain_counter = {"":0};
 
-	function StoreProperly()
+	function StoreProperly(instructions, domain_counter, domain, key_name, content, iteration )
 	{
-		var current_domain_part = domain_counter[current_domain];
+		var domain_part = domain_counter[domain];
 
 		// Create domain if is doesn't exist
-		if( instructions[current_domain] === undefined )
-		instructions[current_domain] = []; // domain is array
-		//instructions[current_domain] = {}; // domain is object
+		if( instructions[domain] === undefined )
+		{
+			instructions[domain] = []; // domain is array
+			//instructions[domain] = {}; // domain is object
+		}
+
 
 		// Create domain part if it doesn't exist
-		if( instructions[current_domain][ current_domain_part ] === undefined )
-		instructions[current_domain][ current_domain_part ] = {};
-
-		// If the key is empty, put the key
-		if( instructions[current_domain][ current_domain_part ][current_name] === undefined )
+		if( instructions[domain][domain_part] === undefined )
 		{
-			instructions[current_domain][ current_domain_part ][current_name] = current_content;
+			instructions[domain][domain_part] = {};
+		}
+
+
+		// Key is empty — put the key
+		if( instructions[domain][domain_part][key_name] === undefined )
+		{
+			instructions[domain][domain_part][key_name] = [];
 		} 
-		// If key is not empty, put the key the end of the array
+		
+		// Iteration is empty
+		if( instructions[domain][domain_part][key_name][iteration] === undefined )
+		instructions[domain][domain_part][key_name][iteration] = content;
 		else
 		{
-			// If the key is an array, just push new content
-			if( Array.isArray(instructions[current_domain][ current_domain_part ][current_name]) )
+			if( Array.isArray( instructions[domain][domain_part][key_name][iteration] ) )
 			{
-				//if( instructions[current_domain][ current_domain_part ][current_name].indexOf(current_content) == -1 )
-				instructions[current_domain][ current_domain_part ][current_name].push( current_content );
+				instructions[domain][domain_part][key_name][iteration].push(content);
+
+			} else
+			{
+				instructions[domain][domain_part][key_name][iteration] = [ instructions[domain][domain_part][key_name][iteration], content ];
 			}
-			// If it's not an array yet, make it array
-			else 
-			{
-				//if( instructions[current_domain][ current_domain_part ][current_name] != current_content )
-				instructions[current_domain][ current_domain_part ][current_name] = [ instructions[current_domain][ current_domain_part ][current_name], current_content ];
-			} 
 		}
+
+	}
+
+	function UpdateRepeats()
+	{
+		//console.log( boundary_key );
+		//console.log( current_key );
+		//console.log( "---" );
+
+		// There's a boundary key 
+		if( boundary_key !== undefined )
+		{
+			// if the current_key equals a boundary key
+			if( boundary_key == current_key )
+			{
+				current_iteration++;
+				//console.log( "REPEATED" );
+			}
+
+		} else
+		// There's NO boundary key yet
+		{
+			// If current key is already in instructions, remember current key as a boundary key
+			if( namespace.indexOf( current_key ) >= 0 )
+			{
+				boundary_key = current_key;
+				current_iteration++;
+				//console.log( boundary_key );
+			} else
+			{
+				namespace.push( current_key );
+			}
+		}
+	}
+	
+	function FlushRepeats()
+	{
+		current_iteration = 0;
+		boundary_key = undefined;	
+		namespace = [];	
 	}
 	
 	for( var i=0; i < lines.length; i++ ) 
@@ -672,19 +790,20 @@ function GetInstructionsFromFileContent( content )
 		// Ignoring lines starting with // that aren't in the ### block
 		if( !hash_started && lines[i].trim()[0] == "/" && lines[i].trim()[1] == "/"  )
 		{
-			//console.log( "IGNORING: " + lines[i] );
 			continue;
 		}
 
 		// {DOMAIN NAME}
 		if( !hash_started && lines[i].trim()[0] == braceopen && open_count == close_count )
 		{
-			//brace_started = true;
 			open_count++;
-
+			
+			// Set repeat to 0 and boundary to undefined because this is a new domain
+			FlushRepeats();
+			
 			// May be "" if no dmain specified
 			current_domain = lines[i].split(braceopen)[1].trim();
-
+			
 			// If this is new domain, create one, and count 0
 			if( domain_counter[current_domain] === undefined )
 			{
@@ -705,6 +824,9 @@ function GetInstructionsFromFileContent( content )
 				if( !hash_started && lines[i].trim()[0] == braceopen && open_count != close_count )
 				{
 					open_count++;
+
+					FlushRepeats();
+
 					continue;
 				}
 		
@@ -712,6 +834,9 @@ function GetInstructionsFromFileContent( content )
 				if( !hash_started && lines[i].trim()[0] == braceclose && open_count != close_count+1 )
 				{
 					close_count++;
+
+					FlushRepeats();
+
 					continue;
 				}
 
@@ -719,8 +844,9 @@ function GetInstructionsFromFileContent( content )
 		// END OF DOMAIN
 		if( !hash_started && lines[i].trim()[0] == braceclose && open_count == close_count+1 )
 		{
-			//brace_started = false;
 			close_count++;
+
+			FlushRepeats();
 			
 			current_domain = "";
 			
@@ -731,13 +857,16 @@ function GetInstructionsFromFileContent( content )
 		// @@@
 		if( lines[i].indexOf(atkey) > -1 )
 		{
-			var arr = lines[i].trim().split(/[\s\t]+(.*)/);
+			//var arr = lines[i].trim().split(/[\s\t]+(.*)/);
+			var arr = lines[i].trim().split(/\s+(.*)/, 2);
 			
-			current_name = arr[0].split(atkey)[1];
+			current_key = arr[0].split(atkey)[1];
 			current_content = (arr[1] !== undefined ? arr[1] : "").trim();
 
-			StoreProperly();
-			current_name = "";
+			UpdateRepeats();
+			StoreProperly(instructions, domain_counter, current_domain, current_key, current_content, current_iteration);
+
+			current_key = "";
 			current_content = "";
 
 			continue;
@@ -749,7 +878,7 @@ function GetInstructionsFromFileContent( content )
 		{			
 			hash_started = true;
 
-			current_name = lines[i].split(hashkey)[1].trim();
+			current_key = lines[i].split(hashkey)[1].trim();
 
 			continue;
 		}
@@ -766,8 +895,10 @@ function GetInstructionsFromFileContent( content )
 				content_lines++;
 			} else // CLOSE ###
 			{				
-				StoreProperly();
-				current_name = "";
+				UpdateRepeats();
+				StoreProperly(instructions, domain_counter, current_domain, current_key, current_content, current_iteration);
+	
+				current_key = "";
 				current_content = "";
 				content_lines = 0;
 
@@ -780,178 +911,6 @@ function GetInstructionsFromFileContent( content )
 
 	return instructions;
 }
-
-/*
-function GetInstructionsFromFileContent( content )
-{
-	var lines = content.split(/\r?\n/);
-
-	var instructions = {};	
-	var hash_started = false;
-	var brace_started = false;
-	var open_count = 0;
-	var close_count = 0;
-	var current_name = "";
-	var current_content = "";
-	var content_lines = 0;
-	var current_domain = "";
-	
-	// It remembers how many times certain domain was described in the file 
-	var domain_counter = {"":0};
-
-	function StoreProperly()
-	{
-		var counter = domain_counter[current_domain];
-
-		// Create domain if is doesn't exist
-		if( instructions[current_domain] === undefined )
-		instructions[current_domain] = []; // domain is array
-		//instructions[current_domain] = {}; // domain is object
-
-		// Create domain part if it doesn't exist
-		if( instructions[current_domain][ counter ] === undefined )
-		instructions[current_domain][ counter ] = {};
-
-		// If the key is empty
-		if( instructions[current_domain][ counter ][current_name] === undefined )
-		{
-			instructions[current_domain][ counter ][current_name] = current_content;
-		} 
-		else
-		{
-			// If the key is an array, not a string
-			if( Array.isArray(instructions[current_domain][ counter ][current_name]) )
-			{
-				//if( instructions[current_domain][ counter ][current_name].indexOf(current_content) == -1 )
-				instructions[current_domain][ counter ][current_name].push( current_content );
-			}
-			else // Make array
-			{
-				//if( instructions[current_domain][ counter ][current_name] != current_content )
-				instructions[current_domain][ counter ][current_name] = [ instructions[current_domain][ counter ][current_name], current_content ];
-			} 
-		}
-	}
-	
-	for( var i=0; i < lines.length; i++ ) 
-	{
-		// Ignoring lines starting with // that aren't in the ### block
-		if( !hash_started && lines[i].trim()[0] == "/" && lines[i].trim()[1] == "/"  )
-		{
-			//console.log( "IGNORING: " + lines[i] );
-			continue;
-		}
-
-		// {DOMAIN NAME}
-		if( !hash_started && lines[i].trim()[0] == braceopen && open_count == close_count )
-		{
-			//brace_started = true;
-			open_count++;
-
-			// May be "" if no dmain specified
-			current_domain = lines[i].split(braceopen)[1].trim();
-
-			// If this is new domain, create one, and count 0
-			if( domain_counter[current_domain] === undefined )
-			{
-				domain_counter[current_domain] = 0;
-			}
-			// If this is an existing domain
-			else
-			{
-				// Don't increment for basic "" domain
-				if( current_domain != "" )
-				domain_counter[current_domain]++;
-			}
-
-			continue;
-		}
-
-				// Ignore inner domain {
-				if( !hash_started && lines[i].trim()[0] == braceopen && open_count != close_count )
-				{
-					open_count++;
-					continue;
-				}
-		
-				// Ignore inner domain }
-				if( !hash_started && lines[i].trim()[0] == braceclose && open_count != close_count+1 )
-				{
-					close_count++;
-					continue;
-				}
-
-
-		// END OF DOMAIN
-		if( !hash_started && lines[i].trim()[0] == braceclose && open_count == close_count+1 )
-		{
-			//brace_started = false;
-			close_count++;
-			
-			current_domain = "";
-			
-			continue;
-		}
-
-
-		// @@@
-		if( lines[i].indexOf(atkey) > -1 )
-		{
-			var arr = lines[i].trim().split(/[\s\t]+(.*)/);
-			
-			current_name = arr[0].split(atkey)[1];
-			current_content = (arr[1] !== undefined ? arr[1] : "").trim();
-
-			StoreProperly();
-			current_name = "";
-			current_content = "";
-
-			continue;
-		}
-
-
-		// OPEN ###
-		if( !hash_started && lines[i].indexOf(hashkey) > -1 )
-		{			
-			hash_started = true;
-
-			current_name = lines[i].split(hashkey)[1].trim();
-
-			continue;
-		}
-
-		if( hash_started )
-		{
-			//console.log( lines[i] );
-			if( lines[i].indexOf(hashkey) == -1 )
-			{
-				if( content_lines > 0 )
-				current_content += "\n";				
-
-				current_content += lines[i];
-				content_lines++;
-			} else // CLOSE ###
-			{				
-				StoreProperly();
-				current_name = "";
-				current_content = "";
-				content_lines = 0;
-
-				hash_started = false;
-			}
-			
-			continue;
-		}
-	}	
-
-	return instructions;
-}
-
-*/
-
-
-
-
 
 
 

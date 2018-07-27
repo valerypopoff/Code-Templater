@@ -1,0 +1,32 @@
+{
+	"is-c3-addon": true,
+	"type": "plugin",
+	"name": "ValerypopoffJS",
+	"id": "ValerypopoffJSPlugin",
+	"version": "0.6.3",
+	"author": "Valera Popov",
+	"website": "http://valerypopoff.ru/",
+	"documentation": "https://readymag.com/valerypopoff/valerypopoff-js-plugin/",
+	"description": "Use javascript functions, get and set object properties and call object methods. Keep event sheets for high-level logic. Implement game objects, and algorithms in javascript.",
+	"editor-scripts": [
+						"plugin.js",
+						"type.js",
+						"instance.js"
+					],
+	"file-list": [
+		"c2runtime/runtime.js",
+		"c3runtime/plugin.js",
+		"c3runtime/type.js",
+		"c3runtime/instance.js",
+		"c3runtime/conditions.js",
+		"c3runtime/actions.js",
+		"c3runtime/expressions.js",
+		"lang/en-US.json",
+		"aces.json",
+		"addon.json",
+		"icon.svg",
+		"instance.js",
+		"plugin.js",
+		"type.js"
+	]
+}

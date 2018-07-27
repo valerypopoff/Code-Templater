@@ -1,0 +1,103 @@
+{
+	"languageTag": "en-US",
+	"fileDescription": "Strings for My Custom Plugin.",
+	"text": 
+	{
+		"plugins": 
+		{
+			"mycustomplugin": 
+			{
+				"name": "My Custom Plugin",
+				"description": "An example third-party plugin.",
+				"help-url": "http://johndoe.com/mycustomplugin/",
+				"properties": 
+				{
+					"test-property": 
+					{
+						"name": "Test property"
+						,"desc": "Test roperty description."
+					},
+					"another-test-property": 
+					{
+						"name": "Another test property"
+						,"desc": "Another test roperty description."
+					}
+				},
+				
+				"aceCategories": 
+				{
+					"custom": "Custom",
+					"super-custom": "Super custom"
+				},
+				
+
+				"conditions": 
+				{
+					"is-large-number": 
+					{
+						"list-name": "Is large number",
+						"display-text": "Is [i]{0}[/i] a large number. There's also {1} that doesn't matter",
+						"translated-name": "Is large number",
+						"description": "Test if a number is greater than 100.",
+						"params": 
+						{
+							"comparison-options": 
+							{ 
+								"name": "Number"
+								,"desc": "Number to test if greater than 100."
+							},
+							"some-param": 
+							{ 
+								"name": "Some param"
+								,"desc": "An exessive value."
+							}
+						}
+					}
+				},
+				"actions": 
+				{
+					"do-alert": 
+					{
+						"list-name": "Do alert",
+						"display-text": "Do alert with message {0} and \"{1}\"",
+						"translated-name": "Do alert",
+						"description": "Do a dummy alert.",
+						"params": 
+						{
+							"alert-text": 
+							{ 
+								"name": "Alert text"
+								,"desc": "Enter alert message."
+							},
+							"alert-add-variants": 
+							{ 
+								"name": "What to add"
+								,"desc": "What to add to the alert message."
+								,"ignore-this": "true or whatever that is not an empty string"
+									,"items": {
+										"dont-care": "And I don't care",
+										"dont-call-me": "And don't call me Shirley",
+										"so-kiss-me": "So kiss me darling"
+									}
+							}
+						}
+					}
+				},
+				"expressions": 
+				{
+					"double": 
+					{
+						"list-name": "Double",
+						"translated-name": "Double",
+						"description": "Double a number.",
+						"params": 
+						{
+						}
+					}
+				}
+
+
+			}
+		}
+	}
+}

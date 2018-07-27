@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<c2addon>
+	<!-- One of: plugin, behavior, effect -->
+	<type>plugin</type>
+	
+	<name>My Custom Plugin</name>	
+	<version>1.0.0</version>
+	<author>John Doe</author>
+	<website>http://johndoe.com/</website>
+	<documentation>http://johndoe.com/mycustomplugin/</documentation>
+	<description>An example third-party plugin.</description>
+</c2addon>

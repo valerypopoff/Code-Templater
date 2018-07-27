@@ -1,7 +1,5 @@
 var http = 			require('http');
 var url = 			require('url');
-//var static = 		require('node-static');
-//var file = 			new static.Server('.');
 var formidable =	require('formidable');
 var fs = 			require('fs');
 var path = 			require('path');
@@ -153,6 +151,6 @@ app.get('/', function(req, res)
 
 
 
-var listener = app.listen(process.env.PORT, function(){});
+var listener = app.listen(process.env.PORT | 8080, function(){});
 
 

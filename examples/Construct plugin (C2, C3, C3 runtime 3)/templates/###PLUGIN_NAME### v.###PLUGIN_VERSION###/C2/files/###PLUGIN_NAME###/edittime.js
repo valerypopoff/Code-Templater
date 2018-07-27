@@ -96,10 +96,7 @@ function GetPluginSettings()
 $$$ DOMAIN="ACE" DELIMITER="" WHERE ACES_C2_EDITTIME="Action"
 $$${
 	$$${!!!
-//Ignore this: ###IS_COMBO_PARAM###
-		$$${
 AddComboParamOption("###PARAM_COMBO_TEXT###");
-		$$$}
 	$$$}
 Add###PARAM_TYPE_C2###("###PARAM_LABEL###", "###PARAM_DESCRIPTION###"
 , "###PARAM_INIT_VALUE###"
@@ -117,10 +114,7 @@ $$$
 $$$ DOMAIN="ACE" DELIMITER="" WHERE ACES_C2_EDITTIME="Condition"
 $$${
 	$$${!!!
-//Ignore this: ###IS_COMBO_PARAM###
-		$$${
 AddComboParamOption("###PARAM_COMBO_TEXT###");
-		$$$}
 	$$$}
 Add###PARAM_TYPE_C2###("###PARAM_LABEL###", "###PARAM_DESCRIPTION###"
 , "###PARAM_INIT_VALUE###"

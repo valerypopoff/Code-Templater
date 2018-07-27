@@ -26,7 +26,7 @@ contexts:
 
   main-nodomain:
     - match: ^{{SPACE}}{{{SPACE}}[^\s\t{}]*{{SPACE}}$
-      scope: comment
+      scope: keyword.control.c
       push: inline-brackets  
 
     - match: ^{{SPACE}}\/\/{{SPACE}}.*
@@ -43,7 +43,7 @@ contexts:
 
   inline-brackets:
     - match: ^{{SPACE}}}{{SPACE}}[^\s\t{}]*{{SPACE}}$
-      scope: comment
+      scope: keyword.control.c
       pop: true
     - include: main-nodomain
 

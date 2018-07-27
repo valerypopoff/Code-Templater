@@ -1,0 +1,32 @@
+{
+	"is-c3-addon": true,
+	"type": "plugin",
+	"name": "My Custom Plugin",
+	"id": "MyCustomPlugin",
+	"version": "1.0.0",
+	"author": "John Doe",
+	"website": "http://johndoe.com/",
+	"documentation": "http://johndoe.com/mycustomplugin/",
+	"description": "An example third-party plugin.",
+	"editor-scripts": [
+						"plugin.js",
+						"type.js",
+						"instance.js"
+					],
+	"file-list": [
+		"c2runtime/runtime.js",
+		"c3runtime/plugin.js",
+		"c3runtime/type.js",
+		"c3runtime/instance.js",
+		"c3runtime/conditions.js",
+		"c3runtime/actions.js",
+		"c3runtime/expressions.js",
+		"lang/en-US.json",
+		"aces.json",
+		"addon.json",
+		"icon.svg",
+		"instance.js",
+		"plugin.js",
+		"type.js"
+	]
+}
