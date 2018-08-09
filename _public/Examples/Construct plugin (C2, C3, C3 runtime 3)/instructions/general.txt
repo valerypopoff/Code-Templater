@@ -6,15 +6,45 @@
 @@@PLUGIN_AUTHOR_WEBSITE		http://johndoe.com/
 @@@PLUGIN_HELP_URL				http://johndoe.com/mycustomplugin/
 
-@@@PLUGIN_CATEGORY_C2			General
-@@@PLUGIN_CATEGORY_C3			general
-
 @@@PLUGIN_ID					MyCustomPlugin
 @@@PLUGIN_ID_IN_LOWER_CASE		mycustomplugin
 
-@@@PLUGIN_TYPE_C2				object
+
+// Only one of these two variables must be set to whatever that is not an empty string. The other one must be left undefined
+@@@PLUGIN_IS_OBJECT_TYPE		yes
+@@@PLUGIN_IS_WORLD_TYPE			
+
+// Can be set to anything you like. Case sensitive.
+@@@PLUGIN_CATEGORY_C2			General
+
+// Must be one of "data-and-storage", "form-controls", "general", "input", "media", "monetisation", "platform-specific", "web", "other".
+// Read about it here: https://www.construct.net/make-games/manuals/addon-sdk/guide/configuring-plugins
+@@@PLUGIN_CATEGORY_C3			general
+
+
+
+// For no flas put 0. About flags read here: https://www.scirra.com/manual/18/plugin-settings
 @@@PLUGIN_FLAGS_C2				pf_singleglobal
+
 @@@PLUGIN_ISSINGLEGLOBAL_C3		true
+@@@PLUGIN_CANBEBUNDELED_C3		true
+
+@@@PLUGIN_ISROTATABLE			false
+@@@PLUGIN_ISRESIZABLE_C3		false
+@@@PLUGIN_HASIMAGE_C3			false
+@@@PLUGIN_ISTILED_C3			false
+@@@PLUGIN_ISDEPRECATED_C3		false
+@@@PLUGIN_SUPPORTSEFFECTS_C3	false
+@@@PLUGIN_MUSTPREDRAW_C3		false
+
+
+// Must be left undefined if you don't want them activated. Otherwise, assign "true" or whatever that is not an empty string
+@@@PLUGIN_AddCommonPositionACEs_C3
+@@@PLUGIN_AddCommonSizeACEs_C3
+@@@PLUGIN_AddCommonAngleACEs_C3
+@@@PLUGIN_AddCommonAppearanceACEs_C3
+@@@PLUGIN_AddCommonZOrderACEs_C3
+
 @@@PLUGIN_SUPPORTED_RUNTIMES	"c2", "c3"
 
 
@@ -22,7 +52,9 @@
 {	PROPS
 
 	@@@ID_C3		test-property
+	// About C2 property types read here: https://www.scirra.com/manual/20/properties
 	@@@TYPE_C2		ept_integer
+	// About C3 property types read here: https://www.construct.net/make-games/manuals/addon-sdk/reference/pluginproperty
 	@@@TYPE_C3		integer
 	@@@NAME			Test property
 	@@@DESCRIPTION	Test roperty description.
@@ -35,6 +67,8 @@
 	@@@DESCRIPTION	Another test roperty description.
 	@@@INIT_VALUE	0
 }
+
+
 
 
 //goes to the code before everything else

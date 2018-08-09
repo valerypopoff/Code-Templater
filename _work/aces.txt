@@ -1,0 +1,16 @@
+{	EXAMPLE
+
+	@@@PARAM_ID		0
+	@@@PARAM_NAME	Width
+
+	@@@PARAM_ID		1
+	@@@PARAM_NAME	Height
+	
+	{
+		@@@SOME_VAR		Brrrr
+	}
+	
+	@@@PARAM_ID		2
+	@@@PARAM_FOO	Whatever
+	@@@PARAM_BAR	Whatsoever
+}

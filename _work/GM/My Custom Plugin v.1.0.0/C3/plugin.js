@@ -30,8 +30,29 @@
 			this._info.SetCategory(PLUGIN_CATEGORY);
 			this._info.SetAuthor("John Doe");
 			this._info.SetHelpUrl(lang(".help-url"));
+
+			// Ignore this: yes	
+			this._info.SetPluginType("object");
+
+
 			this._info.SetIsSingleGlobal(true);
+			this._info.SetCanBeBundled(true);
+
+			this._info.SetIsResizable(false);
+			this._info.SetIsRotatable(false);
+			this._info.SetHasImage(false);
+			this._info.SetIsTiled(false);
+			this._info.SetIsDeprecated(false);
+			this._info.SetSupportsEffects(false);
+			this._info.SetMustPreDraw(false);
+
 			
+
+
+
+
+
+		
 			// Support both the C2 and C3 runtimes
 			this._info.SetSupportedRuntimes(["c2", "c3"]);
 			

@@ -1,8 +1,7 @@
 
-// This is a named set of variables. The example template that goes with this instruction
-// relies on you describing every ACE in a separate set named ACE.
+// This is a named domain of variables. The example template that goes with this instruction
+// relies on you describing every ACE in a separate domain named ACE.
 
-// A named set — just like any other bracket group — limits a namespace. 
 
 {	ACE
 	
@@ -13,7 +12,23 @@
 
 	@@@ID_C2				0
 	@@@ID_C3				is-large-number
-	@@@FLAGS_C2				cf_none
+
+	// Flags
+	{
+		// About C2 ACE flags read here: https://www.scirra.com/manual/19/actions-conditions-and-expressions
+		@@@FLAGS_C2			cf_none
+
+		// About C3 ACE flags read here: https://www.construct.net/make-games/manuals/addon-sdk/guide/defining-aces
+		// You can delete — as well as leave undefined — flags that you don't want to use. Otherwise assing to the flags anything that is not empty string
+		@@@IS_DEPRECATED_C3 	
+		@@@IS_TRIGGER_C3
+		@@@IS_FAKETRIGGER_C3
+		@@@IS_STATIC_C3
+		@@@IS_LOOPING_C3
+		@@@IS_INVERTIBLE_C3
+		@@@IS_COMPATIBLEWITHTRIGGERS_C3
+	}
+
 	@@@HIGHLIGHT			true
 	@@@LIST_NAME			Is large number
 	@@@DISPLAY_STRING 		Is [i]{0}[/i] a large number. There's also {1} that doesn't matter
@@ -23,18 +38,10 @@
 
 
 	// This is a good practice to enclose parameters description in a bracket group
-	// so it's guaranteed that parameters are in a separate namespace.
 
 	// Params
 	{
-		// Even though you have multiple parameters in the same namespace, you don't have to 
-		// explicitly declare the begining of every one. That's because Templater knows when 
-		// the new parameter description starts.
-
-		// Templater knows that this is the new parameter (or any other entity) when
-		// it encounters a variable that has already been declared in a current namespace.
-
-
+		// AddNumberParam, StringParam, AnyTypeParam, CmpParam, ComboParamOption, ObjectParam, LayerParam, LayoutParam, KeybParam, AnimationParam, AudioFileParam
 		@@@PARAM_TYPE_C2 		AnyTypeParam
 		@@@PARAM_TYPE_C3 		any
 		@@@PARAM_ID_C3 			comparison-options
@@ -42,36 +49,12 @@
 		@@@PARAM_DESCRIPTION	Number to test if greater than 100.
 		@@@PARAM_INIT_VALUE		50
 		
-
-		// @@@PARAM_TYPE_C2 is the first variable that has already been declared earlier 
-		// in a current namespace. So here Templater knows that everything that goes below — 
-		// corresponds to the second entity. 
-		
-		// Templater will also remember @@@PARAM_TYPE_C2 as an entity delimiter. So it will 
-		// only think that you're describing the third parameter when it encounters 
-		// @PARAM_TYPE_C2 again. Until then, EVERYTHING will be considered
-		// a part of the second entity.
-		
-		// Thus, you must start paramater variables list with a variable that every 
-		// parameter in a given namespace has. If you wish, you can start every paramater 
-		// variables list with a special variable that's never used in the template. 
-		// Like: @@@PARAM_START
-
-		// Since you let Templater know where the new parameter starts, the order of the rest 
-		// of the variables doesn't matter.
-		// VVVVVVVVVVVV
 		@@@PARAM_TYPE_C2 		AnyTypeParam
 		@@@PARAM_TYPE_C3 		any
 		@@@PARAM_ID_C3 			some-param
 		@@@PARAM_LABEL 			Some param
 		@@@PARAM_DESCRIPTION	An exessive value.
 		@@@PARAM_INIT_VALUE		
-
-		// Since namespaces are limited to the { bracket groups }, Templater starts counting 
-		// entities in the begining of the namespace and ends counting them in the end of the 
-		// namespace. When you open or closing a bracket, Templater starts counting from the 
-		// begining. That's why ###SCRIPT below is considered to be a part of the very first 
-		// entity and goes with everything that was declared before parameters bracket group.
 	}
 	
 	###SCRIPT
@@ -91,7 +74,7 @@
 
 	@@@ID_C2				0
 	@@@ID_C3				do-alert
-	@@@FLAGS_C2				af_none
+	@@@FLAGS_C2				
 	@@@HIGHLIGHT			true
 	@@@LIST_NAME			Do alert
 	@@@DISPLAY_STRING 		Do alert with message {0} and \"{1}\"
@@ -118,10 +101,7 @@
 		@@@PARAM_INIT_COMBO_C2	1
 
 		// @@@PARAM_COMBO_ID and @@@PARAM_COMBO_TEXT correspond to the second parameter so they 
-		// must go AFTER the regular parameter variables — that is, after the line on which 
-		// Templater knows that you're describing the second parameter (in this example this
-		// is the line with @@@PARAM_TYPE_C2).
-		// 
+		// must go AFTER the regular parameter variables.
 		// If you put @@@PARAM_COMBO_ID or @@@PARAM_COMBO_TEXT before @@@PARAM_TYPE_C2, 
 		// Templater will think these are the first parameter variables.
 		
@@ -158,9 +138,6 @@
 }
 
 {	ACE
-
-	// Every variable in this named set is declared only once, so there's no need to 
-	// introduce bracket groups.
 	
 	@@@ACES_C2_EDITTIME		Expression
 	@@@ACES_C3_JSON_TYPE	expressions
@@ -171,7 +148,7 @@
 	@@@ID_C3				double
 	@@@FLAGS_C2				ef_return_any | ef_variadic_parameters
 	@@@RETURN_TYPE_C3		any
-	@@@VARIADIC_PARAMS_C3	true
+	@@@IS_VARIADIC_PARAMS_C3	true
 	@@@HIGHLIGHT			true
 	@@@LIST_NAME			Double
 	@@@DESCRIPTION 			Double a number.

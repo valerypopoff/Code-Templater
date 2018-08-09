@@ -45,11 +45,17 @@
 							{ 
 								"name": "Number"
 								,"desc": "Number to test if greater than 100."
+								,"items": 
+								{
+								}
 							},
 							"some-param": 
 							{ 
 								"name": "Some param"
 								,"desc": "An exessive value."
+								,"items": 
+								{
+								}
 							}
 						}
 					}
@@ -68,17 +74,20 @@
 							{ 
 								"name": "Alert text"
 								,"desc": "Enter alert message."
+								,"items": 
+								{
+								}
 							},
 							"alert-add-variants": 
 							{ 
 								"name": "What to add"
 								,"desc": "What to add to the alert message."
-								,"ignore-this": "true or whatever that is not an empty string"
-									,"items": {
-										"dont-care": "And I don't care",
-										"dont-call-me": "And don't call me Shirley",
-										"so-kiss-me": "So kiss me darling"
-									}
+								,"items": 
+								{
+									"dont-care": "And I don't care",
+									"dont-call-me": "And don't call me Shirley",
+									"so-kiss-me": "So kiss me darling"
+								}
 							}
 						}
 					}

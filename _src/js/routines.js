@@ -113,6 +113,7 @@ function ConvertText( text, instructions )
 		if( (buk_started && lines[i].indexOf(bukkey) > -1 && lines[i].indexOf(bukopen) == -1 && lines[i].indexOf(bukclose) == -1) 
 			|| ( buk_started && i == lines.length-1 ) )
 		{
+			//console.log( "buk_lines: " + buk_lines )
 			result_lines = result_lines.concat( StartBuckRec(
 												{
 													lines: buk_lines, 
@@ -183,6 +184,7 @@ function StartBuckRec( opts )
 
 	//console.log( root_lookup )
 	//console.log( JSON.stringify(opts.instructions) )
+	//console.log([].concat(bukopen, opts.lines, bukclose))
 
 	return ConvertBucklines({
 								// Since this is the root call of ConvertBucklines, 
@@ -316,7 +318,6 @@ function ConvertBucklines( opts )
 							converted_future.max_different = inner_iteration+1;
 						}
 
-						
 						while( inner_iteration < converted_future.max_different )
 						{
 							var inner_sub_iteration = 0;
@@ -397,6 +398,7 @@ function ConvertBucklines( opts )
 		// ### 
 		if( opts.lines[i].indexOf(hashkey) >= 0 )
 		{
+			//console.log("df " + opts.lines[i])
 			var converted = ConvertLine({
 								line: opts.lines[i],
 								instructions: opts.instructions, 
@@ -463,7 +465,8 @@ function ConvertBucklines( opts )
 
 	//console.log( "max_different: " + max_different )
 	//console.log( "max_sub_different: " + max_sub_different )
-
+	//console.log(max_sub_different)
+	
 	return {
 				result: result_lines, 
 				max_different: max_different, 
@@ -544,99 +547,88 @@ function ConvertLine( opts )
 			return "";
 		}
 
+		// There are subiterations in iterations, but this particular subiteration is empty
 		if( opts.sub_iteration !== undefined &&
+			Array.isArray(opts.instructions[opts.domain][opts.domain_part][key][opts.iteration]) &&
 			opts.instructions[opts.domain][opts.domain_part][key][opts.iteration][opts.sub_iteration] === undefined )
 		{
 			return "";
 		}
 
+		// There are no subiterations in iteration and subiteration is not 0
+		if( opts.sub_iteration !== undefined &&
+			!Array.isArray(opts.instructions[opts.domain][opts.domain_part][key][opts.iteration]) &&
+			opts.sub_iteration != 0 )
+		{
+			return "";
+		}		
+
+
+
+
 		
-		//console.log( opts.line );
+		// Set max_diferent and back_lookup even if the target value is empty
+		// because we only need it for FutureBuck analysis
+		if( opts.instructions[opts.domain][opts.domain_part][key].length > max_different )
+		max_different = opts.instructions[opts.domain][opts.domain_part][key].length;
+
+		//if( opts.sub_iteration !== undefined )
+		if( Array.isArray(opts.instructions[opts.domain][opts.domain_part][key][opts.iteration]) )
+		if( opts.instructions[opts.domain][opts.domain_part][key][opts.iteration].length > max_sub_different )
+		max_sub_different = opts.instructions[opts.domain][opts.domain_part][key][opts.iteration].length;
 
 
-		// If it's array
-		//if( Array.isArray(opts.instructions[opts.domain][opts.domain_part][key]) )
+		back_lookup_empty = false;
+		back_lookup = AddLookup( back_lookup, MakeLookup( opts.domain, key, opts ) );
+
+
+		// Only set atleastone if string is not empty
+		// Cause if it's empty, it means that nothing was cpecified in the instruction for this particular iteration
+		var ret = "";
+
+
+		// No subiteration specified or specified but there are no actual subiterations
+/*		if( opts.sub_iteration === undefined || !Array.isArray(opts.instructions[opts.domain][opts.domain_part][key][opts.iteration]) )
 		{
-			// Set max_diferent and back_lookup even if the target value is empty
-			// because we only need it for FutureBuck analysis
-			if( opts.instructions[opts.domain][opts.domain_part][key].length > max_different )
-			max_different = opts.instructions[opts.domain][opts.domain_part][key].length;
-
-			//if( opts.sub_iteration !== undefined )
 			if( Array.isArray(opts.instructions[opts.domain][opts.domain_part][key][opts.iteration]) )
-			if( opts.instructions[opts.domain][opts.domain_part][key][opts.iteration].length > max_sub_different )
-			max_sub_different = opts.instructions[opts.domain][opts.domain_part][key][opts.iteration].length;
-
-			//console.log(key);
-			//console.log(max_sub_different);
-
-			back_lookup_empty = false;
-			back_lookup = AddLookup( back_lookup, MakeLookup( opts.domain, key, opts ) );
-
-
-			// Only set atleastone if string is not empty
-			// Cause if it's empty, it means that nothing was cpecified in the instruction for this particular iteration
-			var ret = "";
-
-			if( opts.sub_iteration === undefined )
+			ret = opts.instructions[opts.domain][opts.domain_part][key][opts.iteration][0];
+			else
 			ret = opts.instructions[opts.domain][opts.domain_part][key][opts.iteration];
-			else
-			ret = opts.instructions[opts.domain][opts.domain_part][key][opts.iteration][opts.sub_iteration];
+		}
+		else
+		ret = opts.instructions[opts.domain][opts.domain_part][key][opts.iteration][opts.sub_iteration];
+*/
 
-			/*
-			if( Array.isArray(ret) )
-			{
-				var temp = "";
 
-				for( var i=0; i<ret.length; i++ )
-				{
-					temp = temp + ret[i];
-
-					// If rhis is not the kast string, put delimiter
-					if( i != ret.length-1 )
-					temp = temp + Unescape(opts.delimiter);
-				}
-
-				ret = temp;
-			} */
-
-			if( ret.length != 0 )
-			atleastone = true;
-			
-			return ret;
-		} 
-		/*
-		else // Not array
+		// Subiteration specified 
+		if( opts.sub_iteration !== undefined )
 		{
-			// Set max_diferent and back_lookup even if the target value is empty
-			// because we only need it for FutureBuck analysis
-			if( 1 > max_different )
-			max_different = 1;
-
-			back_lookup_empty = false;
-			back_lookup = AddLookup( back_lookup, MakeLookup( opts.domain, key, opts ) );
-
-
-			// This is not array but it is the iteration that's > 0. 
-			// It means there's something else on this level that will be repeated
-			// So don't repeat this, return ""
-			// Unless this one is cross_cutting
-			if( opts.iteration > 0 && !cross_cutting )
-			{
-				return "";
-			}
+			// there are actual subiterations
+			if( Array.isArray(opts.instructions[opts.domain][opts.domain_part][key][opts.iteration]) )
+				ret = opts.instructions[opts.domain][opts.domain_part][key][opts.iteration][opts.sub_iteration];
 			else
-			{
-				// Only set atleastone if string is not empty
-				// Cause if it's empty, it means that nothing was cpecified in the instruction
-				var ret = opts.instructions[opts.domain][opts.domain_part][key];
-				if( ret.length != 0 )
-					atleastone = true;
-				
-				return ret;			
-			}
-		} 
-		*/
+				ret = opts.instructions[opts.domain][opts.domain_part][key][opts.iteration];
+		}
+		// Not specified 
+		else
+		{
+			// there are actual subiterations
+			if( Array.isArray(opts.instructions[opts.domain][opts.domain_part][key][opts.iteration]) )
+				ret = opts.instructions[opts.domain][opts.domain_part][key][opts.iteration][0];			
+			else
+				ret = opts.instructions[opts.domain][opts.domain_part][key][opts.iteration];
+		}
+
+		
+
+
+
+
+		if( ret.length != 0 )
+		atleastone = true;
+		
+		return ret;
+
 	})
 
 	// If nothing was found
@@ -690,6 +682,344 @@ function GetInstructionsFromFileContent( content )
 	var lines = content.split(/\r?\n/);
 
 	var instructions = {};	
+	var content_lines = 0;
+	var current_domain = "";
+	
+	// It remembers how many times certain domain was described in the file 
+	var domain_counter = {"":0};
+	var can_be_domains = true;
+
+	BrackRec( lines, can_be_domains );
+
+	function BrackRec( lines, can_be_domains )
+	{	
+		console.log("BrackRec " + can_be_domains)
+		console.log(lines)
+
+		function StoreProperly(instructions, domain_counter, domain, key_name, content, iteration )
+		{
+			var domain_part = domain_counter[domain];
+
+			// Create domain if is doesn't exist
+			if( instructions[domain] === undefined )
+			{
+				instructions[domain] = []; // domain is array
+				//instructions[domain] = {}; // domain is object
+			}
+
+
+			// Create domain part if it doesn't exist
+			if( instructions[domain][domain_part] === undefined )
+			{
+				instructions[domain][domain_part] = {};
+			}
+
+
+			// Key is empty — put the key
+			if( instructions[domain][domain_part][key_name] === undefined )
+			{
+				instructions[domain][domain_part][key_name] = [];
+			} 
+			
+			// Iteration is empty
+			if( instructions[domain][domain_part][key_name][iteration] === undefined )
+			instructions[domain][domain_part][key_name][iteration] = content;
+			else
+			{
+				if( Array.isArray( instructions[domain][domain_part][key_name][iteration] ) )
+				{
+					instructions[domain][domain_part][key_name][iteration].push(content);
+
+				} else
+				{
+					instructions[domain][domain_part][key_name][iteration] = [ instructions[domain][domain_part][key_name][iteration], content ];
+				}
+			}
+		}
+
+		function UpdateRepeats()
+		{
+			//console.log( boundary_key );
+			//console.log( current_key );
+			//console.log( "---" );
+
+			// There's a boundary key 
+			if( boundary_key !== undefined )
+			{
+				// if the current_key equals a boundary key
+				if( boundary_key == current_key )
+				{
+					current_iteration++;
+					//console.log( "REPEATED" );
+				}
+
+			} else
+			// There's NO boundary key yet
+			{
+				// If current key is already in instructions, remember current key as a boundary key
+				if( namespace.indexOf( current_key ) >= 0 )
+				{
+					boundary_key = current_key;
+					current_iteration++;
+					//console.log( boundary_key );
+				} else
+				{
+					namespace.push( current_key );
+				}
+			}
+		}
+		
+		function FlushRepeats()
+		{
+			current_iteration = 0;
+			boundary_key = undefined;	
+			namespace = [];	
+		}
+
+		var open_count = 0;
+		var close_count = 0;
+		var hash_started = false;
+		var pseudo_hash_started = false;
+		var current_key = "";
+		var current_content = "";
+
+		var current_iteration = 0;
+		var boundary_key = undefined;
+		var namespace = [];
+
+		var inner_started = false;
+		var domain_started = false;
+		var inner_lines = [];
+
+		for( var i=0; i < lines.length; i++ ) 
+		{
+			// Comments -------------------------------------------------------------
+
+			// Ignoring lines starting with // that aren't in the ### block
+			if( !pseudo_hash_started && !hash_started && lines[i].trim()[0] == "/" && lines[i].trim()[1] == "/"  )
+			{
+				continue;
+			}
+
+
+
+			// Bracket groups -------------------------------------------------------------
+
+			if( !hash_started && (inner_started || domain_started) )
+			{
+				//console.log("inner line: " + lines[i])
+
+				// Pseudo ### ------------------------------------
+				// Pseudohash begin
+				if( !pseudo_hash_started && lines[i].indexOf(hashkey) >= 0 )
+				{
+					//console.log("opened hash")
+					pseudo_hash_started = true;
+					inner_lines.push( lines[i] );
+					continue;
+				}
+
+				// Pseudohash end
+				if( pseudo_hash_started && lines[i].indexOf(hashkey) >= 0 )
+				{
+					//console.log("closed hash")
+					pseudo_hash_started = false;
+					inner_lines.push( lines[i] );
+					continue;
+				}
+
+				// Pseudohash body
+				if( pseudo_hash_started )
+				{
+					inner_lines.push( lines[i] );
+					continue;
+				}
+
+
+				// Everything else -------------------------------------------
+				// If this is an inner-closing bracket 
+				if( lines[i].trim()[0] == braceclose && open_count == close_count+1 )
+				{
+					// Pass on the } to the next instructions
+				
+				} else
+				{
+					if( !pseudo_hash_started && lines[i].trim()[0] == braceclose )
+					close_count++;
+
+					if( !pseudo_hash_started && lines[i].trim()[0] == braceopen )
+					open_count++;
+
+					
+					inner_lines.push( lines[i] );
+					continue;
+				}
+			}
+
+
+
+			// DOMAIN ------------------------------------------------------------
+
+			if( can_be_domains )
+			{
+				// {DOMAIN NAME}
+				if( !hash_started && lines[i].trim()[0] == braceopen && open_count == close_count )
+				{
+					open_count++;
+					
+					
+					// May be "" if no dmain specified
+					current_domain = lines[i].split(braceopen)[1].trim();
+						console.log("current_domain: " + current_domain)
+					
+					// If this is new domain, create one, and count 0
+					if( domain_counter[current_domain] === undefined )
+					{
+						domain_counter[current_domain] = 0;
+					}
+					// If this is an existing domain
+					else
+					{
+						// Don't increment for basic "" domain
+						if( current_domain != "" )
+						domain_counter[current_domain]++;
+					}
+
+					domain_started = true;
+					continue;
+				}
+
+				// END OF DOMAIN
+				if( !hash_started && domain_started && lines[i].trim()[0] == braceclose && open_count == close_count+1 )
+				{
+					console.log( "close domain" )
+					close_count++;
+
+					BrackRec( inner_lines, false );
+					domain_started = false;
+					inner_lines = [];
+				
+					current_domain = "";
+			
+					continue;
+				}
+			}
+
+
+
+			// Inner { bracket group } ------------------------------------------------------------
+
+			// Inner {
+			if( !hash_started && lines[i].trim()[0] == braceopen && open_count == close_count )
+			{
+				console.log("inner {");
+				open_count++;
+
+				inner_started = true;
+
+				continue;
+			}
+
+			// Inner }
+			if( !hash_started && inner_started && lines[i].trim()[0] == braceclose && open_count == close_count+1 )
+			{
+				console.log("inner }");
+				close_count++;
+
+				BrackRec( inner_lines, false );
+				inner_started = false;
+				inner_lines = [];
+
+				continue;
+			}
+
+
+
+
+			// console.log(lines[i])
+			// console.log("current_domain: " + current_domain)
+			// console.log("domain_part: " + domain_counter[current_domain])
+
+			// console.log("current_iteration: " + current_iteration)
+			// console.log("boundary_key: " + boundary_key)
+			// console.log("namespace: " + namespace)
+
+
+			// VARIABLES ------------------------------------------------------------
+
+			// @@@
+			if( !hash_started && lines[i].indexOf(atkey) > -1 )
+			{
+				//var arr = lines[i].trim().split(/[\s\t]+(.*)/);
+				var arr = lines[i].trim().split(/\s+(.*)/, 2);
+				
+				current_key = arr[0].split(atkey)[1];
+				current_content = (arr[1] !== undefined ? arr[1] : "").trim();
+
+				//console.log("See var: " + current_key)
+
+				UpdateRepeats();
+				StoreProperly(instructions, domain_counter, current_domain, current_key, current_content, current_iteration);
+
+				current_key = "";
+				current_content = "";
+
+				continue;
+			}
+
+
+			// OPEN ###
+			if( !hash_started && lines[i].indexOf(hashkey) >= 0 )
+			{			
+				hash_started = true;
+
+				current_key = lines[i].split(hashkey)[1].trim();
+
+				continue;
+			}
+
+			if( hash_started )
+			{
+				//console.log("hash: " +  lines[i])
+
+				//console.log( lines[i] );
+				if( lines[i].indexOf(hashkey) == -1 )
+				{
+					if( content_lines > 0 )
+					current_content += "\n";				
+
+					current_content += lines[i];
+					content_lines++;
+				} else // CLOSE ###
+				{				
+					UpdateRepeats();
+					StoreProperly(instructions, domain_counter, current_domain, current_key, current_content, current_iteration);
+		
+					current_key = "";
+					current_content = "";
+					content_lines = 0;
+
+					hash_started = false;
+				}
+				
+				continue;
+			}
+		}
+	}	
+
+	//console.log( JSON.stringify(instructions) )
+	return instructions;
+}
+
+
+
+// Restoring instead of recursion on domains
+/*
+function GetInstructionsFromFileContent( content )
+{
+	var lines = content.split(/\r?\n/);
+
+	var instructions = {};	
 	var hash_started = false;
 	var open_count = 0;
 	var close_count = 0;
@@ -697,222 +1027,290 @@ function GetInstructionsFromFileContent( content )
 	var current_content = "";
 	var content_lines = 0;
 	var current_domain = "";
-	var current_iteration = 0;
-	var boundary_key = undefined;
-	var namespace = [];
 	
 	// It remembers how many times certain domain was described in the file 
 	var domain_counter = {"":0};
 
-	function StoreProperly(instructions, domain_counter, domain, key_name, content, iteration )
-	{
-		var domain_part = domain_counter[domain];
+	BrackRec( lines );
 
-		// Create domain if is doesn't exist
-		if( instructions[domain] === undefined )
+	function BrackRec( lines )
+	{	
+		console.log("BrackRec")
+		//console.log(lines)
+
+		function StoreProperly(instructions, domain_counter, domain, key_name, content, iteration )
 		{
-			instructions[domain] = []; // domain is array
-			//instructions[domain] = {}; // domain is object
-		}
+			var domain_part = domain_counter[domain];
 
-
-		// Create domain part if it doesn't exist
-		if( instructions[domain][domain_part] === undefined )
-		{
-			instructions[domain][domain_part] = {};
-		}
-
-
-		// Key is empty — put the key
-		if( instructions[domain][domain_part][key_name] === undefined )
-		{
-			instructions[domain][domain_part][key_name] = [];
-		} 
-		
-		// Iteration is empty
-		if( instructions[domain][domain_part][key_name][iteration] === undefined )
-		instructions[domain][domain_part][key_name][iteration] = content;
-		else
-		{
-			if( Array.isArray( instructions[domain][domain_part][key_name][iteration] ) )
+			// Create domain if is doesn't exist
+			if( instructions[domain] === undefined )
 			{
-				instructions[domain][domain_part][key_name][iteration].push(content);
-
-			} else
-			{
-				instructions[domain][domain_part][key_name][iteration] = [ instructions[domain][domain_part][key_name][iteration], content ];
-			}
-		}
-
-	}
-
-	function UpdateRepeats()
-	{
-		//console.log( boundary_key );
-		//console.log( current_key );
-		//console.log( "---" );
-
-		// There's a boundary key 
-		if( boundary_key !== undefined )
-		{
-			// if the current_key equals a boundary key
-			if( boundary_key == current_key )
-			{
-				current_iteration++;
-				//console.log( "REPEATED" );
+				instructions[domain] = []; // domain is array
+				//instructions[domain] = {}; // domain is object
 			}
 
-		} else
-		// There's NO boundary key yet
-		{
-			// If current key is already in instructions, remember current key as a boundary key
-			if( namespace.indexOf( current_key ) >= 0 )
-			{
-				boundary_key = current_key;
-				current_iteration++;
-				//console.log( boundary_key );
-			} else
-			{
-				namespace.push( current_key );
-			}
-		}
-	}
-	
-	function FlushRepeats()
-	{
-		current_iteration = 0;
-		boundary_key = undefined;	
-		namespace = [];	
-	}
-	
-	for( var i=0; i < lines.length; i++ ) 
-	{
-		// Ignoring lines starting with // that aren't in the ### block
-		if( !hash_started && lines[i].trim()[0] == "/" && lines[i].trim()[1] == "/"  )
-		{
-			continue;
-		}
 
-		// {DOMAIN NAME}
-		if( !hash_started && lines[i].trim()[0] == braceopen && open_count == close_count )
-		{
-			open_count++;
+			// Create domain part if it doesn't exist
+			if( instructions[domain][domain_part] === undefined )
+			{
+				instructions[domain][domain_part] = {};
+			}
+
+
+			// Key is empty — put the key
+			if( instructions[domain][domain_part][key_name] === undefined )
+			{
+				instructions[domain][domain_part][key_name] = [];
+			} 
 			
-			// Set repeat to 0 and boundary to undefined because this is a new domain
-			FlushRepeats();
-			
-			// May be "" if no dmain specified
-			current_domain = lines[i].split(braceopen)[1].trim();
-			
-			// If this is new domain, create one, and count 0
-			if( domain_counter[current_domain] === undefined )
-			{
-				domain_counter[current_domain] = 0;
-			}
-			// If this is an existing domain
+			// Iteration is empty
+			if( instructions[domain][domain_part][key_name][iteration] === undefined )
+			instructions[domain][domain_part][key_name][iteration] = content;
 			else
 			{
-				// Don't increment for basic "" domain
-				if( current_domain != "" )
-				domain_counter[current_domain]++;
-			}
+				if( Array.isArray( instructions[domain][domain_part][key_name][iteration] ) )
+				{
+					instructions[domain][domain_part][key_name][iteration].push(content);
 
-			continue;
+				} else
+				{
+					instructions[domain][domain_part][key_name][iteration] = [ instructions[domain][domain_part][key_name][iteration], content ];
+				}
+			}
 		}
 
-				// Ignore inner domain {
-				if( !hash_started && lines[i].trim()[0] == braceopen && open_count != close_count )
+		function UpdateRepeats()
+		{
+			//console.log( boundary_key );
+			//console.log( current_key );
+			//console.log( "---" );
+
+			// There's a boundary key 
+			if( boundary_key !== undefined )
+			{
+				// if the current_key equals a boundary key
+				if( boundary_key == current_key )
 				{
-					open_count++;
-
-					FlushRepeats();
-
-					continue;
+					current_iteration++;
+					//console.log( "REPEATED" );
 				}
-		
-				// Ignore inner domain }
-				if( !hash_started && lines[i].trim()[0] == braceclose && open_count != close_count+1 )
+
+			} else
+			// There's NO boundary key yet
+			{
+				// If current key is already in instructions, remember current key as a boundary key
+				if( namespace.indexOf( current_key ) >= 0 )
 				{
+					boundary_key = current_key;
+					current_iteration++;
+					//console.log( boundary_key );
+				} else
+				{
+					namespace.push( current_key );
+				}
+			}
+		}
+		
+		function FlushRepeats()
+		{
+			current_iteration = 0;
+			boundary_key = undefined;	
+			namespace = [];	
+		}
+
+		function RestoreRepeats()
+		{
+			current_iteration = current_iteration_stored;
+			boundary_key = boundary_key_stored;	
+			namespace = namespace_stored;	
+		}
+
+		function SaveRepeats()
+		{
+			current_iteration_stored = current_iteration;
+			boundary_key_stored = boundary_key;	
+			namespace_stored = namespace;	
+		}
+
+		var current_iteration_stored = 0;
+		var boundary_key_stored = undefined;
+		var namespace_stored = [];
+
+		var current_iteration = 0;
+		var boundary_key = undefined;
+		var namespace = [];
+
+		var inner_started = false;
+		var inner_lines = [];
+
+		for( var i=0; i < lines.length; i++ ) 
+		{
+			// Inner { bracket group } ------------------------------------------------------------
+
+				// Inner }
+				if( inner_started && !hash_started && lines[i].trim()[0] == braceclose && open_count == close_count+2 )
+				{
+					//console.log("inner }");
 					close_count++;
 
-					FlushRepeats();
+					//if( open_count == close_count+1 )
+					//{
+						BrackRec( inner_lines );
+						inner_started = false;
+						inner_lines = [];
+					//}
 
 					continue;
 				}
 
+				// Everything between inner { and }
+				if( inner_started )
+				{
+					//console.log("inner line")
 
-		// END OF DOMAIN
-		if( !hash_started && lines[i].trim()[0] == braceclose && open_count == close_count+1 )
-		{
-			close_count++;
+					if( lines[i].trim()[0] == braceclose )
+					close_count++;
 
-			FlushRepeats();
+					if( lines[i].trim()[0] == braceopen )
+					open_count++;
+
+					inner_lines.push( lines[i] );
+					continue;
+				}
+
+				// Inner {
+				if( !hash_started && lines[i].trim()[0] == braceopen && open_count != close_count )
+				{
+					//console.log("inner {");
+					open_count++;
+
+					//FlushRepeats();
+					inner_started = true;
+
+					continue;
+				}
 			
-			current_domain = "";
-			
-			continue;
-		}
+			//---------------------------------------------------------------------------------------
 
 
-		// @@@
-		if( lines[i].indexOf(atkey) > -1 )
-		{
-			//var arr = lines[i].trim().split(/[\s\t]+(.*)/);
-			var arr = lines[i].trim().split(/\s+(.*)/, 2);
-			
-			current_key = arr[0].split(atkey)[1];
-			current_content = (arr[1] !== undefined ? arr[1] : "").trim();
-
-			UpdateRepeats();
-			StoreProperly(instructions, domain_counter, current_domain, current_key, current_content, current_iteration);
-
-			current_key = "";
-			current_content = "";
-
-			continue;
-		}
-
-
-		// OPEN ###
-		if( !hash_started && lines[i].indexOf(hashkey) > -1 )
-		{			
-			hash_started = true;
-
-			current_key = lines[i].split(hashkey)[1].trim();
-
-			continue;
-		}
-
-		if( hash_started )
-		{
-			//console.log( lines[i] );
-			if( lines[i].indexOf(hashkey) == -1 )
+			// Comments
+			// Ignoring lines starting with // that aren't in the ### block
+			if( !hash_started && lines[i].trim()[0] == "/" && lines[i].trim()[1] == "/"  )
 			{
-				if( content_lines > 0 )
-				current_content += "\n";				
+				continue;
+			}
 
-				current_content += lines[i];
-				content_lines++;
-			} else // CLOSE ###
-			{				
+			// {DOMAIN NAME}
+			if( !hash_started && lines[i].trim()[0] == braceopen && open_count == close_count )
+			{
+				open_count++;
+				
+				// Set repeat to 0 and boundary to undefined because this is a new domain
+				SaveRepeats();
+				FlushRepeats();
+				
+				// May be "" if no dmain specified
+				current_domain = lines[i].split(braceopen)[1].trim();
+				//console.log("current_domain: " + current_domain)
+				
+				// If this is new domain, create one, and count 0
+				if( domain_counter[current_domain] === undefined )
+				{
+					domain_counter[current_domain] = 0;
+				}
+				// If this is an existing domain
+				else
+				{
+					// Don't increment for basic "" domain
+					if( current_domain != "" )
+					domain_counter[current_domain]++;
+				}
+
+				continue;
+			}
+
+
+
+			// END OF DOMAIN
+			if( !hash_started && lines[i].trim()[0] == braceclose && open_count == close_count+1 )
+			{
+				//console.log( "close domain" )
+				close_count++;
+
+				//FlushRepeats();
+				RestoreRepeats();
+				
+				current_domain = "";
+				
+				continue;
+			}
+
+
+
+
+
+			// @@@
+			if( lines[i].indexOf(atkey) > -1 )
+			{
+				//var arr = lines[i].trim().split(/[\s\t]+(.*)/);
+				var arr = lines[i].trim().split(/\s+(.*)/, 2);
+				
+				current_key = arr[0].split(atkey)[1];
+				current_content = (arr[1] !== undefined ? arr[1] : "").trim();
+
+				//console.log("See var: " + current_key)
+
 				UpdateRepeats();
 				StoreProperly(instructions, domain_counter, current_domain, current_key, current_content, current_iteration);
-	
+
 				current_key = "";
 				current_content = "";
-				content_lines = 0;
 
-				hash_started = false;
+				continue;
 			}
-			
-			continue;
+
+
+			// OPEN ###
+			if( !hash_started && lines[i].indexOf(hashkey) > -1 )
+			{			
+				hash_started = true;
+
+				current_key = lines[i].split(hashkey)[1].trim();
+
+				continue;
+			}
+
+			if( hash_started )
+			{
+				//console.log( lines[i] );
+				if( lines[i].indexOf(hashkey) == -1 )
+				{
+					if( content_lines > 0 )
+					current_content += "\n";				
+
+					current_content += lines[i];
+					content_lines++;
+				} else // CLOSE ###
+				{				
+					UpdateRepeats();
+					StoreProperly(instructions, domain_counter, current_domain, current_key, current_content, current_iteration);
+		
+					current_key = "";
+					current_content = "";
+					content_lines = 0;
+
+					hash_started = false;
+				}
+				
+				continue;
+			}
 		}
 	}	
 
+	console.log( JSON.stringify(instructions) )
 	return instructions;
 }
-
-
+*/
 
 
 

@@ -9,8 +9,12 @@ function GetPluginSettings()
 		"author":		"John Doe",
 		"help url":		"http://johndoe.com/mycustomplugin/",
 		"category":		"General",				// Prefer to re-use existing categories, but you can set anything here
-		"type":			"object",				// either "world" (appears in layout and is drawn), else "object"
-		"rotatable":	true,					// only used when "type" is "world".  Enables an angle property on the object.
+
+		// Ignore this: yes	
+		"type":			"object",
+
+
+		"rotatable":	false,					// only used when "type" is "world".  Enables an angle property on the object.
 		"flags":		pf_singleglobal						
 					// uncomment lines to enable flags...
 					//	| pf_singleglobal		// exists project-wide, e.g. mouse, keyboard.  "type" must be "object".
@@ -97,7 +101,6 @@ AddStringParam("Alert text", "Enter alert message."
 , "\"Hello world\""
 );	
 
-//Ignore this: true or whatever that is not an empty string
 AddComboParamOption("And I don't care");
 AddComboParamOption("And don't call me Shirley");
 AddComboParamOption("So kiss me darling");

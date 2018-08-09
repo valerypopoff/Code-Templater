@@ -2,8 +2,10 @@
 
 {
 	const PLUGIN_CLASS = SDK.Plugins.MyCustomPlugin;
-	
+
+	// Ignore this: yes
 	PLUGIN_CLASS.Instance = class MyCustomPluginInstance extends SDK.IInstanceBase
+
 	{
 		constructor(sdkType, inst)
 		{

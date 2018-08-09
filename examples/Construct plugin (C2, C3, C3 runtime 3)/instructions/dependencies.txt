@@ -1,0 +1,32 @@
+
+// These are file dependencies. 
+// Read about them here: https://www.construct.net/make-games/manuals/addon-sdk/reference/specifying-dependencies
+
+// You can delete the whole bracket group if you don't use this kind of dependencies.
+
+// Don't put quotes for filenames, URL's and other variables here. So it should be script.js, not "script.js".
+
+
+{ FILE_DEPENDENCIES
+
+	// Repeat all these fileds for every dependency file.
+	// If you don't want to specify one of the fields, keep the field and leave it undefined.
+	@@@FILENAME
+	@@@TYPE
+	@@@FILETYPE
+	@@@PLATFORM
+}
+
+
+{ CORDOVA_PLUGIN_DEPENDENCIES
+
+	@@@ID
+	@@@VERSION
+	@@@PLATFORM
+}
+
+
+{ REMOTE_SCRIPT_DEPENDENCIES
+
+	@@@URL
+}

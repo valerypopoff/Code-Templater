@@ -16,14 +16,16 @@
 					"id": "comparison-options",
 					"type": "any"
 					, "initialValue": "50" 
-
-
+					, "items": 
+					[
+					]
 				},
 				{ 
 					"id": "some-param",
 					"type": "any"
-
-
+					, "items": 
+					[
+					]
 				}
 			]				
 		}
@@ -62,21 +64,20 @@
 					"id": "alert-text",
 					"type": "string"
 					, "initialValue": "\"Hello world\"" 
-
-
+					, "items": 
+					[
+					]
 				},
 				{ 
 					"id": "alert-add-variants",
 					"type": "combo"
 					, "initialValue": "dont-call-me" 
-
-					,"ignore-this": "true or whatever that is not an empty string"
-					,"items": [
-							"dont-care",
-							"dont-call-me",
-							"so-kiss-me"
-							]
-
+					, "items": 
+					[
+						"dont-care",
+						"dont-call-me",
+						"so-kiss-me"
+					]
 				}
 			]				
 		}

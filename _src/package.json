@@ -1,6 +1,6 @@
 {
   "name": "Code Templater",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Code Templater",
   "main": "server.js",
   "directories": {
@@ -21,6 +21,7 @@
     "multiparty": "^4.1.4",
     "ncp": "^2.0.0",
     "path": "^0.12.7",
-    "zip-dir": "^1.0.2"
+    "zip-dir": "^1.0.2",
+    "body-parser": "^1.18.3"
   }
 }

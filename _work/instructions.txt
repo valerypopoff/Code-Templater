@@ -1,0 +1,18 @@
+//fddwfsd
+
+{
+	//sdfsfdsdf
+
+	{
+		###SOME_FUNC
+		function DO3()
+		{
+			//werwer
+			hi
+		}
+		//sdfdfsdfcf
+
+		###
+	}
+
+}

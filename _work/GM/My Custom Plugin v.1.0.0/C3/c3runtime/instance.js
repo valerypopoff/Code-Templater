@@ -6,7 +6,9 @@
 	}
 
 {
+	// Ignore this: yes
 	C3.Plugins.MyCustomPlugin.Instance = class MyCustomPluginInstance extends C3.SDKInstanceBase
+
 	{
 		constructor(inst, properties)
 		{

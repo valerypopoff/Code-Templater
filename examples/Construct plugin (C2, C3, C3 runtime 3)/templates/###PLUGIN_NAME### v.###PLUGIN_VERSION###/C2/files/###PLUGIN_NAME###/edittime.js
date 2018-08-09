@@ -1,7 +1,14 @@
 
 function GetPluginSettings()
 {
-	return {
+	// Generting dependency string;
+	var dependency_str = "";
+	$$$ DOMAIN="FILE_DEPENDENCIES" DELIMITER=" + ';'"
+	dependency_str += "###FILENAME###"
+	$$$
+
+	return 
+	{
 		"name":			"###PLUGIN_NAME###",				// as appears in 'insert object' dialog, can be changed as long as "id" stays the same
 		"id":			"###PLUGIN_ID###",				// this is used to identify this plugin and is saved to the project; never change it
 		"version":		"###PLUGIN_VERSION###",					// (float in x.y format) Plugin version - C2 shows compatibility warnings based on this
@@ -9,8 +16,17 @@ function GetPluginSettings()
 		"author":		"###PLUGIN_AUTHOR###",
 		"help url":		"###PLUGIN_HELP_URL###",
 		"category":		"###PLUGIN_CATEGORY_C2###",				// Prefer to re-use existing categories, but you can set anything here
-		"type":			"###PLUGIN_TYPE_C2###",				// either "world" (appears in layout and is drawn), else "object"
-		"rotatable":	true,					// only used when "type" is "world".  Enables an angle property on the object.
+
+		$$$
+		// Ignore this: ###PLUGIN_IS_OBJECT_TYPE###	
+		"type":			"object",
+		$$$
+
+		$$$
+		// Ignore this: ###PLUGIN_IS_WORLD_TYPE###			
+		"type":			"world",
+		$$$
+
 		"flags":		###PLUGIN_FLAGS_C2###						
 					// uncomment lines to enable flags...
 					//	| pf_singleglobal		// exists project-wide, e.g. mouse, keyboard.  "type" must be "object".
@@ -26,6 +42,8 @@ function GetPluginSettings()
 					//	| pf_effects			// allow WebGL shader effects to be added
 					//  | pf_predraw			// set for any plugin which draws and is not a sprite (i.e. does not simply draw
 												// a single non-tiling image the size of the object) - required for effects to work properly
+		,"rotatable":	###PLUGIN_ISROTATABLE###					// only used when "type" is "world".  Enables an angle property on the object.
+		,"dependency":	dependency_str
 	};
 };
 
