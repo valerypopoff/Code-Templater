@@ -8,7 +8,7 @@
 		function DO3()
 		{
 			//werwer
-			hi
+			hi234543
 		}
 		//sdfdfsdfcf
 

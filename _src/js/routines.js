@@ -693,8 +693,8 @@ function GetInstructionsFromFileContent( content )
 
 	function BrackRec( lines, can_be_domains )
 	{	
-		console.log("BrackRec " + can_be_domains)
-		console.log(lines)
+		//console.log("BrackRec " + can_be_domains)
+		//console.log(lines)
 
 		function StoreProperly(instructions, domain_counter, domain, key_name, content, iteration )
 		{
@@ -870,7 +870,7 @@ function GetInstructionsFromFileContent( content )
 					
 					// May be "" if no dmain specified
 					current_domain = lines[i].split(braceopen)[1].trim();
-						console.log("current_domain: " + current_domain)
+						//console.log("current_domain: " + current_domain)
 					
 					// If this is new domain, create one, and count 0
 					if( domain_counter[current_domain] === undefined )
@@ -892,7 +892,7 @@ function GetInstructionsFromFileContent( content )
 				// END OF DOMAIN
 				if( !hash_started && domain_started && lines[i].trim()[0] == braceclose && open_count == close_count+1 )
 				{
-					console.log( "close domain" )
+					//console.log( "close domain" )
 					close_count++;
 
 					BrackRec( inner_lines, false );
@@ -912,7 +912,7 @@ function GetInstructionsFromFileContent( content )
 			// Inner {
 			if( !hash_started && lines[i].trim()[0] == braceopen && open_count == close_count )
 			{
-				console.log("inner {");
+				//console.log("inner {");
 				open_count++;
 
 				inner_started = true;
@@ -923,7 +923,7 @@ function GetInstructionsFromFileContent( content )
 			// Inner }
 			if( !hash_started && inner_started && lines[i].trim()[0] == braceclose && open_count == close_count+1 )
 			{
-				console.log("inner }");
+				//console.log("inner }");
 				close_count++;
 
 				BrackRec( inner_lines, false );

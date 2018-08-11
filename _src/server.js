@@ -9,14 +9,20 @@ var express =		require('express');
 var zipdir =		require('zip-dir');
 var multiparty =	require('multiparty');
 var fse =			require('fs-extra');
+var bodyParser = 	require('body-parser')
 
-eval(fs.readFileSync('./js/routines-tiny.js')+'');
-eval(fs.readFileSync('./js/routines.js')+'');
+eval(fs.readFileSync(path.join(__dirname,'/js/routines-tiny.js'))+'');
+eval(fs.readFileSync(path.join(__dirname,'/js/routines.js'))+'');
 
 var ready_zip = undefined;
 
 var app = express();
 app.use(express.static('public'));
+
+app.use( bodyParser.json() );       // to support JSON-encoded bodies
+app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+  extended: true
+})); 
 
 var router = express.Router();
 app.use('/', router);
@@ -27,7 +33,7 @@ app.use(function (req, res, next)
 {
 	console.log("["+req.url+"]");
 	
-	if( req.url != "/" && req.url != "/upload" && req.url != "/download" )
+	if( req.url != "/" && req.url != "/upload" && req.url != "/download" && req.url != "/test" )
 	{
 		res.sendFile(__dirname + req.url);
 	
@@ -114,6 +120,13 @@ app.post('/upload', function(req, res)
 	//res.end();
 });
 
+app.post('/test', function(req, res) 
+{
+	var instructions = GetInstructionsFromFileContent( req.body.instructions );
+	var new_content = ConvertText( req.body.template, instructions );
+
+	res.end( new_content );  
+});
 
 router.get('/download', function(req, res, next)
 { 
@@ -127,21 +140,6 @@ router.get('/download', function(req, res, next)
 		res.redirect('/');
 	}
 });
-
-
-/*router.get('/download/:filepath(*)', function(req, res, next)
-{ 
-	if( req.params.filepath != "" )
-	{
-		console.log( "downloading...: " + req.params.filepath );
-		res.download(req.params.filepath, "result.zip");
-	}
-	else
-	{
-		res.redirect('/');
-	}
-});
-*/
 
 
 app.get('/', function(req, res) 

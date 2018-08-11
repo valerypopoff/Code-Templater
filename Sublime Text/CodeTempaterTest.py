@@ -5,11 +5,11 @@ import urllib.parse
 import urllib.request
 import ntpath
 
-URL = r"http://localhost:8080/test"
+URL = "http://codetemplatertest-env.9ntrq9bsch.us-west-2.elasticbeanstalk.com/test"
 TEMP_FILENAME = "TEMP"
 KEY = "TEMP000000"
 last_time = 0
-period_sec = 0.5
+period_sec = 0.7
 INSTRUCTION_FILE_NAME = "instructions.txt"
 TEMPLATE_FILE_NAME = "template.txt"
 
