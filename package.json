@@ -6,8 +6,7 @@
 
 	"scripts": 
 	{
-		"start": "node ./_src/server.js",
-		"test": "node ./_src/server.js"
+		"start": "node ./_src/server.js"
 	},
 
 	"author": "Valera Popov",
