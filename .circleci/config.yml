@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  - build:
     docker:
       # specify the version you desire here
       - image: circleci/node:8.11.3
@@ -32,8 +32,8 @@ jobs:
 #      # run tests!
 #      - run: yarn test
 
-  deploy:
-    working_directory: ~/app
+  - deploy:
+    working_directory: ~/repo
     docker:
       - image: circleci/node:8.11.3
     steps:
