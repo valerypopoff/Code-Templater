@@ -1,11 +1,19 @@
 version: 2
 jobs:
   deploy:
-    working_directory: ~/repo
+    working_directory: ~/app
     docker:
       - image: circleci/node:8.11.3
     steps:
       - checkout
+
+      - run:
+          name: Installing deployment dependencies
+          working_directory: /
+          command: |
+            sudo apt-get -y -qq update
+            sudo apt-get install python-pip python-dev build-essential
+            sudo pip install awsebcli --upgrade
 
       - run:
           name: Deploying
@@ -20,3 +28,4 @@ workflows:
             branches:
               only:
                 - master
+
