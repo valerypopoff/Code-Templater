@@ -1,9 +1,0 @@
-branch-defaults:
-  master:
-    environment: CodeTemplaterTest-env
-global:
-  application_name: Code Templater Test
-  default_ec2_keyname: i-0127abe62defade9b
-  default_platform: 64bit Amazon Linux 2017.09 v2.6.2 running Ruby 2.4 (Passenger Standalone)
-  default_region: eu-west-2
-  sc: git
