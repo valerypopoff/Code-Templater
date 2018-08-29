@@ -14,7 +14,7 @@ var bodyParser = 	require('body-parser')
 eval(fs.readFileSync(path.join(__dirname,'/js/routines-tiny.js'))+'');
 eval(fs.readFileSync(path.join(__dirname,'/js/routines.js'))+'');
 
-var ready_zip = undefined;
+//var ready_zip = undefined;
 
 var app = express();
 app.use(express.static('public'));
@@ -28,7 +28,13 @@ var router = express.Router();
 app.use('/', router);
 
 
+
+var folder_for_results = path.join( __dirname, "Result");
+
+
+
 // File delivery -------------------------
+/*
 app.use(function (req, res, next) 
 {
 	console.log("["+req.url+"]");
@@ -40,14 +46,13 @@ app.use(function (req, res, next)
 	} else
 	next();
 });
+*/
 
 
 app.post('/upload', function(req, res) 
 {
-	ready_zip = undefined;
+	//ready_zip = undefined;
 	
-	//var folder_for_results = "Result";
-	var folder_for_results = path.join( "./", "Result");
 	var randomname = RandomName(16);
 	var resultpath = path.join( folder_for_results, randomname );
 
@@ -60,7 +65,7 @@ app.post('/upload', function(req, res)
 
 
 	console.log("before form");
-	var form = new multiparty.Form({maxFilesSize:800*1024});
+	var form = new multiparty.Form({maxFilesSize:1024*1024});
 
 	form.on('progress', function(bytesReceived, bytesExpected) 
 	{
@@ -107,9 +112,7 @@ app.post('/upload', function(req, res)
 				deleteFolderRecursive( path.join(resultpath, "templates") );
 				deleteFolderRecursive( path.join(resultpath, "instructions") );
 
-				ready_zip = zipname;
-				//res.end(zipname);
-				res.end();
+				res.end(randomname);
 			});
 		}
 		
@@ -128,6 +131,7 @@ app.post('/test', function(req, res)
 	res.end( new_content );  
 });
 
+/*
 router.get('/download', function(req, res, next)
 { 
 	if( ready_zip !== undefined )
@@ -140,13 +144,31 @@ router.get('/download', function(req, res, next)
 		res.redirect('/');
 	}
 });
+*/
 
+app.get('/download/:randomname', function(req, res) 
+{
 
+	var randomname = req.params.randomname;
+	var zipfile = path.join( folder_for_results, randomname, "result.zip" );
+
+	if( fs.existsSync(zipfile) )
+	{
+		console.log( "new downloading...: " + zipfile );
+		res.download( zipfile, "result.zip");
+	}
+	else
+	{
+		res.redirect('/');
+	}
+});
+
+/*
 app.get('/', function(req, res) 
 {
 	res.sendFile(__dirname + '/index.html');
 });
-
+*/
 
 
 var listener = app.listen(process.env.PORT | 8080, function(){});

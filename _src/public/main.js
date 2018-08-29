@@ -82,7 +82,8 @@ $( document ).ready(function()
       {
         console.log("ajaxed successfully");
         //window.location.href = '/download' + "/" + data;
-        window.location.href = '/download';
+        //window.location.href = '/download';
+        window.location = '/download/' + data;
       }
     });
     
