@@ -35,7 +35,7 @@ jobs:
           command: |
             sudo apt-get -y -qq update
             sudo apt-get install python-pip python-dev build-essential
-            sudo pip install --upgrade "urllib3==1.22" awscli
+            sudo pip install --upgrade "urllib3==1.22" awscli awsebcli
 
       - run:
           name: Deploying
