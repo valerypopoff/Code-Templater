@@ -1,6 +1,6 @@
 "use strict";
 
-###ROUTINES###
+
 
 {
 	$$$
@@ -31,17 +31,30 @@
 		{
 			super.Release();
 		}
-		
+
+		Draw(renderer)
+		{
+			###C3_RUNTIME_DRAW_FUNCTION_BODY###
+		}
+
 		SaveToJson()
 		{
-			return {
-				// data to be saved for savegames
-			};
+			###SAVETOJSON_FUNCTION_BODY###
 		}
 		
 		LoadFromJson(o)
 		{
-			// load state for savegames
+			###LOADFROMJSON_FUNCTION_BODY###
+		}
+
+		Tick()
+		{
+			###TICK_FUNCTION_BODY###
+		}
+
+		Tick2()
+		{
+			###TICK2_FUNCTION_BODY###
 		}
 	};
 

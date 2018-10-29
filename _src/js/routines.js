@@ -677,6 +677,357 @@ function GetInstructionsContentFromDir( instructions_dir )
     return content;
 }
 
+
+
+function GetInstructionsFromFileContent( content )
+{
+	var lines = content.split(/\r?\n/);
+
+	var instructions = {};	
+	var content_lines = 0;
+	var current_domain = "";
+	
+	// It remembers how many times certain domain was described in the file 
+	var domain_counter = {"":0};
+	var can_be_domains = true;
+
+	BrackRec( lines, can_be_domains, false );
+
+	function BrackRec( lines, can_be_domains, inner_bracket_content_just_started )
+	{	
+		//console.log("BrackRec " + can_be_domains)
+		//console.log(lines)
+
+		function StoreProperly(instructions, domain_counter, domain, key_name, content, iteration )
+		{
+			var domain_part = domain_counter[domain];
+
+			// Create domain if is doesn't exist
+			if( instructions[domain] === undefined )
+			{
+				instructions[domain] = []; // domain is array
+				//instructions[domain] = {}; // domain is object
+			}
+
+
+			// Create domain part if it doesn't exist
+			if( instructions[domain][domain_part] === undefined )
+			{
+				instructions[domain][domain_part] = {};
+			}
+
+
+			// Key is empty — put the key
+			if( instructions[domain][domain_part][key_name] === undefined )
+			{
+				instructions[domain][domain_part][key_name] = [];
+			} 
+			
+			// Iteration is empty
+			if( instructions[domain][domain_part][key_name][iteration] === undefined )
+			instructions[domain][domain_part][key_name][iteration] = content;
+			else
+			{
+				if( Array.isArray( instructions[domain][domain_part][key_name][iteration] ) )
+				{
+					instructions[domain][domain_part][key_name][iteration].push(content);
+
+				} else
+				{
+					instructions[domain][domain_part][key_name][iteration] = [ instructions[domain][domain_part][key_name][iteration], content ];
+				}
+			}
+		}
+
+		function UpdateRepeats()
+		{
+			//console.log( "boundary_key: " + boundary_key );
+			//console.log( "current_key: " + current_key );
+
+			// There's a boundary key 
+			if( boundary_key !== undefined )
+			{
+				// if the current_key equals a boundary key
+				if( boundary_key == current_key )
+				{
+					current_iteration++;
+					//console.log( "REPEATED" );
+				}
+
+			} else
+			// There's NO boundary key yet
+			{
+				// If current key is already in instructions, remember current key as a boundary key
+				if( namespace.indexOf( current_key ) >= 0 || inner_bracket_content_just_started )
+				{
+					boundary_key = current_key;
+
+					if( !inner_bracket_content_just_started )
+					current_iteration++;
+
+					if( inner_bracket_content_just_started )
+					inner_bracket_content_just_started = false;
+					
+					//console.log( "just set BK: " + boundary_key );
+				} else
+				{
+					namespace.push( current_key );
+				}
+			}
+
+			//console.log( "---" );
+		}
+		
+		function FlushRepeats()
+		{
+			current_iteration = 0;
+			boundary_key = undefined;	
+			namespace = [];	
+		}
+
+		var open_count = 0;
+		var close_count = 0;
+		var hash_started = false;
+		var pseudo_hash_started = false;
+		var current_key = "";
+		var current_content = "";
+
+		var current_iteration = 0;
+		var boundary_key = undefined;
+		var namespace = [];
+
+		var inner_started = false;
+		var domain_started = false;
+		var inner_lines = [];
+
+		for( var i=0; i < lines.length; i++ ) 
+		{
+			// Comments -------------------------------------------------------------
+
+			// Ignoring lines starting with // that aren't in the ### block
+			if( !pseudo_hash_started && !hash_started && lines[i].trim()[0] == "/" && lines[i].trim()[1] == "/"  )
+			{
+				continue;
+			}
+
+
+			// Bracket groups -------------------------------------------------------------
+
+			if( !hash_started && (inner_started || domain_started) )
+			{
+
+				//console.log("inner line: " + lines[i])
+
+				// Pseudo ### ------------------------------------
+				// Pseudohash begin
+				if( !pseudo_hash_started && lines[i].indexOf(hashkey) >= 0 )
+				{
+					//console.log("opened hash")
+					pseudo_hash_started = true;
+					inner_lines.push( lines[i] );
+					continue;
+				}
+
+				// Pseudohash end
+				if( pseudo_hash_started && lines[i].indexOf(hashkey) >= 0 )
+				{
+					//console.log("closed hash")
+					pseudo_hash_started = false;
+					inner_lines.push( lines[i] );
+					continue;
+				}
+
+				// Pseudohash body
+				if( pseudo_hash_started )
+				{
+					inner_lines.push( lines[i] );
+					continue;
+				}
+
+
+				// Everything else -------------------------------------------
+				// If this is an inner-closing bracket 
+				if( lines[i].trim()[0] == braceclose && open_count == close_count+1 )
+				{
+					// Pass on the } to the next instructions
+				
+				} else
+				{
+					if( !pseudo_hash_started && lines[i].trim()[0] == braceclose )
+					close_count++;
+
+					if( !pseudo_hash_started && lines[i].trim()[0] == braceopen )
+					open_count++;
+
+					
+					inner_lines.push( lines[i] );
+					continue;
+				}
+			}
+
+
+
+			// DOMAIN ------------------------------------------------------------
+
+			if( can_be_domains )
+			{
+
+				// {DOMAIN NAME}
+				if( !hash_started && lines[i].trim()[0] == braceopen && open_count == close_count )
+				{
+
+
+					open_count++;
+					
+
+					
+					// May be "" if no dmain specified
+					current_domain = lines[i].split(braceopen)[1].trim();
+						//console.log("current_domain: " + current_domain)
+					
+					// If this is new domain, create one, and count 0
+					if( domain_counter[current_domain] === undefined )
+					{
+						domain_counter[current_domain] = 0;
+					}
+					// If this is an existing domain
+					else
+					{
+						// Don't increment for basic "" domain
+						if( current_domain != "" )
+						domain_counter[current_domain]++;
+					}
+
+					domain_started = true;
+					continue;
+				}
+
+				// END OF DOMAIN
+				if( !hash_started && domain_started && lines[i].trim()[0] == braceclose && open_count == close_count+1 )
+				{
+
+					//console.log( "close domain" )
+					close_count++;
+
+					BrackRec( inner_lines, false, false );
+					domain_started = false;
+					inner_lines = [];
+				
+					current_domain = "";
+			
+					continue;
+				}
+			}
+
+
+
+			// Inner { bracket group } ------------------------------------------------------------
+
+			// Inner {
+			if( !hash_started && lines[i].trim()[0] == braceopen && open_count == close_count )
+			{
+
+				//console.log("inner {");
+				open_count++;
+
+				inner_started = true;
+
+				continue;
+			}
+
+			// Inner }
+			if( !hash_started && inner_started && lines[i].trim()[0] == braceclose && open_count == close_count+1 )
+			{
+
+				//console.log("inner }");
+				close_count++;
+
+				BrackRec( inner_lines, false, true );
+				inner_started = false;
+				inner_lines = [];
+
+				continue;
+			}
+
+
+
+
+			// console.log(lines[i])
+			// console.log("current_domain: " + current_domain)
+			// console.log("domain_part: " + domain_counter[current_domain])
+
+			// console.log("current_iteration: " + current_iteration)
+			// console.log("boundary_key: " + boundary_key)
+			// console.log("namespace: " + namespace)
+
+
+			// VARIABLES ------------------------------------------------------------
+
+			// @@@
+			if( !hash_started && lines[i].indexOf(atkey) > -1 )
+			{
+				//var arr = lines[i].trim().split(/[\s\t]+(.*)/);
+				var arr = lines[i].trim().split(/\s+(.*)/, 2);
+				
+				current_key = arr[0].split(atkey)[1];
+				current_content = (arr[1] !== undefined ? arr[1] : "").trim();
+
+				//console.log("See var: " + current_key + ": " + current_content)
+
+				UpdateRepeats();
+				StoreProperly(instructions, domain_counter, current_domain, current_key, current_content, current_iteration);
+
+				current_key = "";
+				current_content = "";
+
+				continue;
+			}
+
+
+			// OPEN ###
+			if( !hash_started && lines[i].indexOf(hashkey) >= 0 )
+			{			
+				hash_started = true;
+
+				current_key = lines[i].split(hashkey)[1].trim();
+
+				continue;
+			}
+
+			if( hash_started )
+			{
+				//console.log("hash: " +  lines[i])
+
+				//console.log( lines[i] );
+				if( lines[i].indexOf(hashkey) == -1 )
+				{
+					if( content_lines > 0 )
+					current_content += "\n";				
+
+					current_content += lines[i];
+					content_lines++;
+				} else // CLOSE ###
+				{				
+					UpdateRepeats();
+					StoreProperly(instructions, domain_counter, current_domain, current_key, current_content, current_iteration);
+		
+					current_key = "";
+					current_content = "";
+					content_lines = 0;
+
+					hash_started = false;
+				}
+				
+				continue;
+			}
+		}
+	}	
+
+	//console.log( JSON.stringify(instructions) )
+	return instructions;
+}
+
+/*
 function GetInstructionsFromFileContent( content )
 {
 	var lines = content.split(/\r?\n/);
@@ -1010,7 +1361,7 @@ function GetInstructionsFromFileContent( content )
 	//console.log( JSON.stringify(instructions) )
 	return instructions;
 }
-
+*/
 
 
 // Restoring instead of recursion on domains

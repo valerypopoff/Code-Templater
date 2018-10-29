@@ -6,7 +6,7 @@ import urllib.request
 import ntpath
 
 URL = "http://codetemplatertest-env.9ntrq9bsch.us-west-2.elasticbeanstalk.com/test"
-TEMP_FILENAME = "TEMP"
+TEMP_FILENAME = "output"
 KEY = "TEMP000000"
 last_time = 0
 period_sec = 0.7

@@ -17,6 +17,12 @@
 					{
 						"name": "###NAME###"
 						,"desc": "###DESCRIPTION###"
+						,"items": 
+						{
+						$$${!!!
+							"###PARAM_COMBO_ID###": "###PARAM_COMBO_TEXT###"
+						$$$}
+						}
 					}
 					$$$
 				},

@@ -1,6 +1,8 @@
 // ECMAScript 5 strict mode
 "use strict";
 
+###ANY_RUNTIME###
+
 ###CONSTRUCT3_C2_RUNTIME###
 
 
@@ -28,7 +30,7 @@ cr.plugins_.###PLUGIN_ID### = function(runtime)
 
 	var typeProto = pluginProto.Type.prototype;
 
-
+	// called on startup for each object type
 	typeProto.onCreate = function()
 	{	
 	};
@@ -39,9 +41,6 @@ cr.plugins_.###PLUGIN_ID### = function(runtime)
 	{
 		this.type = type;
 		this.runtime = type.runtime;
-		
-		// Initialise object properties
-		//this.testProperty = 0;
 	};
 	
 	var instanceProto = pluginProto.Instance.prototype;
@@ -53,18 +52,40 @@ cr.plugins_.###PLUGIN_ID### = function(runtime)
 	
 	instanceProto.saveToJSON = function ()
 	{
-		return {};
+		###SAVETOJSON_FUNCTION_BODY###
 	};
 	
 	instanceProto.loadFromJSON = function (o)
 	{
+		###LOADFROMJSON_FUNCTION_BODY###
+	};
+
+	// only called if a layout object - draw to a canvas 2D context
+	instanceProto.draw = function(ctx)
+	{
+		###C2_CANVAS_DRAW_FUNCTION_BODY###
 	};
 	
+	// only called if a layout object in WebGL mode - draw to the WebGL context
+	// 'glw' is not a WebGL context, it's a wrapper - you can find its methods in GLWrap.js in the install
+	// directory or just copy what other plugins do.
+	instanceProto.drawGL = function (glw)
+	{
+		###C2_WEBGL_DRAW_FUNCTION_BODY###
+	};
+
+
 	/**BEGIN-PREVIEWONLY**/
 	instanceProto.getDebuggerValues = function (propsections)
 	{
 	};
 	/**END-PREVIEWONLY**/
+
+
+	instanceProto.tick = function()
+	{
+		###TICK_FUNCTION_BODY###
+	}
 
 	###ROUTINES###
 

@@ -7,8 +7,7 @@ function GetPluginSettings()
 	dependency_str += "###FILENAME###"
 	$$$
 
-	return 
-	{
+	return {
 		"name":			"###PLUGIN_NAME###",				// as appears in 'insert object' dialog, can be changed as long as "id" stays the same
 		"id":			"###PLUGIN_ID###",				// this is used to identify this plugin and is saved to the project; never change it
 		"version":		"###PLUGIN_VERSION###",					// (float in x.y format) Plugin version - C2 shows compatibility warnings based on this
@@ -174,7 +173,18 @@ ACESDone();
 
 var property_list = [
 $$$ DOMAIN="PROPS" DELIMITER="," 
-new cr.Property(###TYPE_C2###, "###NAME###", ###INIT_VALUE###, "###DESCRIPTION###")
+new cr.Property(###TYPE_C2###, "###NAME###"
+	, ###INIT_VALUE###
+	, ###PARAM_INIT_COMBO_C2###
+	, "###DESCRIPTION###"
+	,[
+		$$${!!!
+				"###PARAM_COMBO_TEXT###"
+				"###PARAM###"
+		$$$}
+	].join("|")
+	, ###C2_READONLY###
+	)
 $$$	
 	];
 	

@@ -1,5 +1,11 @@
 "use strict";
 
+###ANY_RUNTIME###
+
+###CONSTRUCT3_C3_RUNTIME###
+
+###ROUTINES###
+
 {
 	const PLUGIN_CLASS = SDK.Plugins.###PLUGIN_ID###;
 
@@ -13,7 +19,7 @@
 	$$$
 	// Ignore this: ###PLUGIN_IS_WORLD_TYPE###	
 	$$${
-	PLUGIN_CLASS.Instance = class ###PLUGIN_ID###Instance extends SDK.SDK.IWorldInstanceBase
+	PLUGIN_CLASS.Instance = class ###PLUGIN_ID###Instance extends SDK.IWorldInstanceBase
 	$$$}
 	$$$
 	{
@@ -29,14 +35,29 @@
 		OnCreate()
 		{
 		}
-		
+
+		Draw(iRenderer, iDrawParams)
+		{
+			###C3_EDITOR_DRAW_FUNCTION_BODY###
+		}
+
 		OnPropertyChanged(id, value)
 		{
 		}
 		
 		LoadC2Property(name, valueString)
 		{
-			return false;		// not handled
+			switch(name) 
+			{
+				$$$ DOMAIN="PROPS" DELIMITER=""
+				case "###NAME###".toLowerCase().split(" ").join("-"):
+					this._inst.SetPropertyValue("###ID_C3###", valueString);
+					return true;
+
+				$$$
+			}
+			
+			return false;
 		}
 	};
 }

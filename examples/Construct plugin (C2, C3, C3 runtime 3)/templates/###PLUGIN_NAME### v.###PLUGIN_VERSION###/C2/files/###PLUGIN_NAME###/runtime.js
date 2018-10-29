@@ -1,6 +1,8 @@
 // ECMAScript 5 strict mode
 "use strict";
 
+###ANY_RUNTIME###
+
 ###CONSTRUCT2_C2_RUNTIME###
 
 
@@ -39,9 +41,6 @@ cr.plugins_.###PLUGIN_ID### = function(runtime)
 	{
 		this.type = type;
 		this.runtime = type.runtime;
-		
-		// any other properties you need, e.g...
-		// this.myValue = 0;
 	};
 	
 	var instanceProto = pluginProto.Instance.prototype;
@@ -51,9 +50,20 @@ cr.plugins_.###PLUGIN_ID### = function(runtime)
 		###INSTANCE_CONSTRUCTOR_BODY###
 	};
 	
+	instanceProto.saveToJSON = function ()
+	{
+		###SAVETOJSON_FUNCTION_BODY###
+	};
+
+	instanceProto.loadFromJSON = function (o)
+	{
+		###LOADFROMJSON_FUNCTION_BODY###
+	};
+
 	// only called if a layout object - draw to a canvas 2D context
 	instanceProto.draw = function(ctx)
 	{
+		###C2_CANVAS_DRAW_FUNCTION_BODY###
 	};
 	
 	// only called if a layout object in WebGL mode - draw to the WebGL context
@@ -61,7 +71,13 @@ cr.plugins_.###PLUGIN_ID### = function(runtime)
 	// directory or just copy what other plugins do.
 	instanceProto.drawGL = function (glw)
 	{
+		###C2_WEBGL_DRAW_FUNCTION_BODY###
 	};
+
+	instanceProto.tick = function()
+	{
+		###TICK_FUNCTION_BODY###
+	}
 
 	###ROUTINES###
 	

@@ -98,7 +98,16 @@
 			
 			this._info.SetProperties([
 				$$$ DOMAIN="PROPS" DELIMITER="," 
-				new SDK.PluginProperty("###TYPE_C3###", "###ID_C3###", ###INIT_VALUE###)
+				new SDK.PluginProperty("###TYPE_C3###", "###ID_C3###", {
+					ignore_this: 0
+					,initialValue: ###INIT_VALUE###
+					,initialValue: "###PARAM_INIT_COMBO_C3###"
+					,items: [
+						$$${!!!
+						"###PARAM_COMBO_ID###"
+						$$$}
+					]
+				})
 				$$$
 			]);
 			

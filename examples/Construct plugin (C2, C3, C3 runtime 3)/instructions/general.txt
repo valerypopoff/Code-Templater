@@ -23,9 +23,10 @@
 
 
 
-// For no flas put 0. About flags read here: https://www.scirra.com/manual/18/plugin-settings
+// For no flags put 0. About flags read here: https://www.scirra.com/manual/18/plugin-settings
 @@@PLUGIN_FLAGS_C2				pf_singleglobal
 
+// Assign true or false
 @@@PLUGIN_ISSINGLEGLOBAL_C3		true
 @@@PLUGIN_CANBEBUNDELED_C3		true
 
@@ -66,26 +67,59 @@
 	@@@NAME			Another test property
 	@@@DESCRIPTION	Another test roperty description.
 	@@@INIT_VALUE	0
+
+	@@@ID_C3		string-property
+	@@@TYPE_C2		ept_text
+	@@@TYPE_C3		longtext
+	@@@NAME			String property
+	@@@DESCRIPTION	String roperty description.
+	@@@INIT_VALUE	"Hey!"
+
+	// Combo propery
+	@@@ID_C3				combo-property
+	@@@TYPE_C2				ept_combo
+	@@@TYPE_C3				combo
+	@@@NAME					Combo property
+	@@@DESCRIPTION			Just a combo property.
+	@@@PARAM_INIT_COMBO_C2	0
+	@@@PARAM_INIT_COMBO_C3	id-one
+
+	@@@PARAM_COMBO_ID		id-one
+	@@@PARAM_COMBO_TEXT		One
+
+	@@@PARAM_COMBO_ID		id-two
+	@@@PARAM_COMBO_TEXT		Two
 }
 
 
-
-
 //goes to the code before everything else
+###ANY_RUNTIME
+	if( window === undefined )
+	{
+		var window = ("undefined" == typeof window) ? 
+						("undefined" == typeof global) ? 
+							("undefined" == typeof self) ? 
+							this
+							:self
+						:global
+					:window;
+	}
+###
+
+
+//goes to the corresponding runtime global scope before everything else and helps workaround sdk-specific cases
 ###CONSTRUCT2_C2_RUNTIME
 	var __CONSTRUCT2_RUNTIME2__ = true;
 	var __CONSTRUCT3_RUNTIME2__ = false;
 	var __CONSTRUCT3_RUNTIME3__ = false;
 ### 
 
-//goes to the code before everything else
 ###CONSTRUCT3_C2_RUNTIME
 	var __CONSTRUCT2_RUNTIME2__ = false;
 	var __CONSTRUCT3_RUNTIME2__ = true;
 	var __CONSTRUCT3_RUNTIME3__ = false;
 ### 
 
-//goes to the code before everything else
 ###CONSTRUCT3_C3_RUNTIME
 	var __CONSTRUCT2_RUNTIME2__ = false;
 	var __CONSTRUCT3_RUNTIME2__ = false;
@@ -93,31 +127,99 @@
 ### 
 
 
-// Code that will go to the constructor body
+// Code that goes to the constructor body
 ###INSTANCE_CONSTRUCTOR_BODY
 	this.testProperty = this.properties[0];
-###
 
-// Any code that will be accessible from the ACEs methods 
-###ROUTINES
-	var SomeFunction = function()
-	{	
-		//
+
+	// Uncomment this if you need ticking
+	/*
+	if( __CONSTRUCT2_RUNTIME2__ || __CONSTRUCT3_RUNTIME2__ )
+	this.runtime.tickMe(this);
+
+	if( __CONSTRUCT3_RUNTIME3__ )
+	{
+		this._StartTicking();
+		this._StartTicking2();
 	}
+	*/
 ###
 
-// Additional instance properties
+
+
+// Additional instance properties (will be accessible from the ACEs methods)
 ###INSTANCE_OBJECT
 {
-	Foo(num)
+	Foo: function(num)
 	{
 		console.log( "I got the number: " + num );
 	},
 	
-	Bar(str)
+	Bar: function(str)
 	{
 		console.log( "I got the string: " + str );
 	}
 }
 ###
 
+
+// TICK -------------------------
+
+// Called in both C2 and C3
+###TICK_FUNCTION_BODY
+
+###
+
+// Called in C3 only
+###TICK2_FUNCTION_BODY
+
+###
+
+
+// SAVE/LOAD ------------------------
+
+// Called in both C2 and C3
+###SAVETOJSON_FUNCTION_BODY
+	return {}
+###
+
+// Called in both C2 and C3
+###LOADFROMJSON_FUNCTION_BODY
+	//Function has one argument called "o"
+###
+
+
+
+// DRAW --------------------------
+
+// Only called if a layout object - draw to a canvas 2D context
+###C2_CANVAS_DRAW_FUNCTION_BODY
+	//Function has one argument called "ctx"
+###
+
+// Only called if a layout object in WebGL mode - draw to the WebGL context
+// 'glw' is not a WebGL context, it's a wrapper - you can find its methods in GLWrap.js in the C2 install
+// directory or just copy what other plugins do.
+###C2_WEBGL_DRAW_FUNCTION_BODY
+	//Function has one argument called "glw"
+###
+
+###C3_RUNTIME_DRAW_FUNCTION_BODY
+	//Function has one argument called "renderer"
+###
+
+###C3_EDITOR_DRAW_FUNCTION_BODY
+	//Function has two arguments called "iRenderer" and "iDrawParams"
+###
+
+
+
+// Routines ------------------------
+
+// Any code that will be placed in global scope (and will be accessible from the ACEs methods) 
+###ROUTINES
+	var SomeGlobalFunction = function()
+	{	
+		//
+	}
+###

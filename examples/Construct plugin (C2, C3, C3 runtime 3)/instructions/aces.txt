@@ -41,7 +41,7 @@
 
 	// Params
 	{
-		// AddNumberParam, StringParam, AnyTypeParam, CmpParam, ComboParamOption, ObjectParam, LayerParam, LayoutParam, KeybParam, AnimationParam, AudioFileParam
+		// NumberParam, StringParam, AnyTypeParam, CmpParam, ComboParamOption, ObjectParam, LayerParam, LayoutParam, KeybParam, AnimationParam, AudioFileParam
 		@@@PARAM_TYPE_C2 		AnyTypeParam
 		@@@PARAM_TYPE_C3 		any
 		@@@PARAM_ID_C3 			comparison-options
@@ -58,10 +58,10 @@
 	}
 	
 	###SCRIPT
-	IsLargeNumber(number)
-    {   
-        return number > 100;
-    }
+		IsLargeNumber: function(number)
+		{
+			return number > 100;
+		}
 	###
 }
 
@@ -74,7 +74,7 @@
 
 	@@@ID_C2				0
 	@@@ID_C3				do-alert
-	@@@FLAGS_C2				
+	@@@FLAGS_C2				af_none
 	@@@HIGHLIGHT			true
 	@@@LIST_NAME			Do alert
 	@@@DISPLAY_STRING 		Do alert with message {0} and \"{1}\"
@@ -116,24 +116,24 @@
 	}
 
 	###SCRIPT
-	Alert(alert_msg, combo)
-	{
-		var combo_text;
-		switch( combo )
+		Alert: function(alert_msg, combo)
 		{
-			case 0: combo_text = "And I don't care"; break;
-			case 1: combo_text = "And don't call me Shirley"; break;
-			case 2: combo_text = "So kiss me darling"; break;
+			var combo_text;
+			switch( combo )
+			{
+				case 0: combo_text = "And I don't care"; break;
+				case 1: combo_text = "And don't call me Shirley"; break;
+				case 2: combo_text = "So kiss me darling"; break;
+			}
+
+			alert(alert_msg + " " + combo_text);
+			alert("By the way, first plugin property = " + this.testProperty);
+			alert("By the way, 512 is large = " + this.CNDS.IsLargeNumber(512));
+
+			// These two functions will log to the console
+			this.Foo( 1024 );
+			this.Bar( "One thousand and twenty four" );
 		}
-
-		alert(alert_msg + " " + combo_text);
-		alert("By the way, first plugin property = " + this.testProperty);
-		alert("By the way, 512 is large = " + this.CNDS.IsLargeNumber(512));
-
-		// These two functions will log to the console
-		this.Foo( 1024 );
-		this.Bar( "One thousand and twenty four" );
-	}
 	###
 }
 
@@ -156,16 +156,16 @@
 	@@@SCRIPT_NAME 			Double
 
 	###SCRIPT
-	Double(ret, number) 
-    {
-		ret.set_any(number * 2);    	
-    }
+		Double: function(ret, number) 
+		{
+			ret.set_any(number * 2);    	
+		}
 	###
 
 	###SCRIPT_C3_RUNTIME
-	Double(number) 
-    {
-    	return number * 2;
-    }
+		Double: function(number) 
+		{
+			return number * 2;
+		}
 	###
 }
