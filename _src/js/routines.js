@@ -792,7 +792,9 @@ function GetInstructionsFromFileContent( content )
 		var at_ellipsis_started = false;
 		var pseudo_hash_started = false;
 		var current_key = "";
+		var current_bulk_key = [];
 		var current_content = "";
+		var current_bulk_content = [];
 
 		var current_iteration = 0;
 		var boundary_key = undefined;
@@ -822,15 +824,26 @@ function GetInstructionsFromFileContent( content )
 				}
 				else if( lines[i].indexOf(at_ellipsis_key) == -1 )
 				{
-					current_content = (lines[i] !== undefined ? lines[i] : "").trim();
+					//current_content = (lines[i] !== undefined ? lines[i] : "").trim();
 
-					UpdateRepeats();
-					StoreProperly(instructions, domain_counter, current_domain, current_key, current_content, current_iteration);
+					current_bulk_content = [];
+					current_bulk_content = lines[i].trimLeft().split("\t");
+
+					for( var i=0; i<current_bulk_key.length() )
+					{
+						current_content = (current_bulk_content[i] !== undefined ? current_bulk_content[i] : "");
+
+						UpdateRepeats();
+						StoreProperly(instructions, domain_counter, current_domain, current_bulk_key[i], current_content, current_iteration);
+
+					}
 
 				} else // CLOSE @@@...
 				{
-					current_key = "";
-					current_content = "";
+					//current_key = "";
+					current_bulk_key = [];
+					//current_content = "";
+					current_bulk_content = [];
 
 					at_ellipsis_started = false;
 				}
@@ -997,7 +1010,8 @@ function GetInstructionsFromFileContent( content )
 				//var arr = lines[i].trim().split(/[\s\t]+(.*)/);
 				//var arr = lines[i].trim().split(/\s+(.*)/, 2);
 				
-				current_key = lines[i].trim().split(at_ellipsis_key)[1];
+				//current_key = lines[i].trim().split(at_ellipsis_key)[1];
+				current_bulk_key = lines[i].trim().split(at_ellipsis_key)[1].trim().split(/\s+/);
 				at_ellipsis_started = true;
 
 				continue;
