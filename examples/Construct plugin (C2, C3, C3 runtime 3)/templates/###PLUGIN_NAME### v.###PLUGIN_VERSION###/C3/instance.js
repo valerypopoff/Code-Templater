@@ -47,17 +47,62 @@
 		
 		LoadC2Property(name, valueString)
 		{
-			switch(name) 
-			{
-				$$$ DOMAIN="PROPS" DELIMITER=""
-				case "###NAME###".toLowerCase().split(" ").join("-"):
-					this._inst.SetPropertyValue("###ID_C3###", valueString);
-					return true;
-
-				$$$
-			}
+			var c3obj = {};
+			var convname;
 			
+			
+			$$$ DOMAIN="PROPS" DELIMITER=","
+			convname = "###NAME###".toLowerCase().replace(/[^a-zA-Z0-9 -]/g,'').split(" ").join("-");
+
+			c3obj[convname] = 
+			{
+				idc3: "###ID_C3###",
+				type: "###TYPE_C3###",
+				combo: {
+				$$${!!!
+					"###PARAM_COMBO_TEXT###": "###PARAM_COMBO_ID###" 
+				$$$}
+				}
+			}//
+			$$$
+
+			var value = undefined;
+
+
+			var prop = c3obj[name];
+
+			if( prop === undefined )
+				return;
+
+			switch( prop.type )
+			{
+				case "check": value = (parseInt(valueString) == 0 ? false : true); break;
+
+				case "font":
+				case "link":
+				case "info":
+				case "color": 
+				case "group": break;
+
+				case "percent":
+				case "float": value = parseFloat(valueString); break;
+				case "integer": value = parseInt(valueString); break;
+
+				case "text":
+				case "longtext": value = valueString; break;
+
+				case "combo": value = prop.combo[valueString]; break;
+			}
+
+
+			if( value === undefined )
 			return false;
+
+
+			this._inst.SetPropertyValue(prop.idc3, value);
+			return true;
+			
 		}
+
 	};
 }

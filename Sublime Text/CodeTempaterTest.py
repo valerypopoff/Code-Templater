@@ -5,7 +5,7 @@ import urllib.parse
 import urllib.request
 import ntpath
 
-URL = "http://codetemplatertest-env.9ntrq9bsch.us-west-2.elasticbeanstalk.com/test"
+URL = "https://code-templater.glitch.me/test"
 TEMP_FILENAME = "output"
 KEY = "TEMP000000"
 last_time = 0

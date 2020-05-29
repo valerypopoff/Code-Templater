@@ -81,7 +81,7 @@
 	@@@TYPE_C3				combo
 	@@@NAME					Combo property
 	@@@DESCRIPTION			Just a combo property.
-	@@@PARAM_INIT_COMBO_C2	0
+	@@@PARAM_INIT_COMBO_C2	"One"
 	@@@PARAM_INIT_COMBO_C3	id-one
 
 	@@@PARAM_COMBO_ID		id-one
@@ -202,6 +202,10 @@
 // directory or just copy what other plugins do.
 ###C2_WEBGL_DRAW_FUNCTION_BODY
 	//Function has one argument called "glw"
+###
+
+###C2_EDITOR_DRAW_FUNCTION_BODY
+	//Function has one argument called "renderer"
 ###
 
 ###C3_RUNTIME_DRAW_FUNCTION_BODY

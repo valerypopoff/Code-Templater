@@ -249,6 +249,7 @@ IDEInstance.prototype.OnRendererInit = function(renderer)
 // Called to draw self in the editor if a layout object
 IDEInstance.prototype.Draw = function(renderer)
 {
+	###C2_EDITOR_DRAW_FUNCTION_BODY###
 }
 
 // For rendered objects to release fonts or textures
