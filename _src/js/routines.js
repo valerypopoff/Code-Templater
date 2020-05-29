@@ -1,5 +1,6 @@
 var hashkey = "###";
 var atkey = "@@@";
+var at_ellipsis_key = "@@@...";
 var bukkey = "$$$";
 var bukopen = "$$${";
 var bukclose = "$$$}";
@@ -588,7 +589,7 @@ function ConvertLine( opts )
 
 
 		// No subiteration specified or specified but there are no actual subiterations
-/*		if( opts.sub_iteration === undefined || !Array.isArray(opts.instructions[opts.domain][opts.domain_part][key][opts.iteration]) )
+	/*	if( opts.sub_iteration === undefined || !Array.isArray(opts.instructions[opts.domain][opts.domain_part][key][opts.iteration]) )
 		{
 			if( Array.isArray(opts.instructions[opts.domain][opts.domain_part][key][opts.iteration]) )
 			ret = opts.instructions[opts.domain][opts.domain_part][key][opts.iteration][0];
@@ -597,7 +598,7 @@ function ConvertLine( opts )
 		}
 		else
 		ret = opts.instructions[opts.domain][opts.domain_part][key][opts.iteration][opts.sub_iteration];
-*/
+	*/
 
 
 		// Subiteration specified 
@@ -788,6 +789,7 @@ function GetInstructionsFromFileContent( content )
 		var open_count = 0;
 		var close_count = 0;
 		var hash_started = false;
+		var at_ellipsis_started = false;
 		var pseudo_hash_started = false;
 		var current_key = "";
 		var current_content = "";
@@ -809,6 +811,32 @@ function GetInstructionsFromFileContent( content )
 			{
 				continue;
 			}
+
+
+			if( at_ellipsis_started )
+			{
+				//console.log( lines[i] );
+				if( lines[i].trim() == "" )
+				{
+					continue;
+				}
+				else if( lines[i].indexOf(at_ellipsis_key) == -1 )
+				{
+					current_content = (lines[i] !== undefined ? lines[i] : "").trim();
+
+					UpdateRepeats();
+					StoreProperly(instructions, domain_counter, current_domain, current_key, current_content, current_iteration);
+
+				} else // CLOSE @@@...
+				{
+					current_key = "";
+					current_content = "";
+
+					at_ellipsis_started = false;
+				}
+				
+				continue;
+			}			
 
 
 			// Bracket groups -------------------------------------------------------------
@@ -962,6 +990,18 @@ function GetInstructionsFromFileContent( content )
 
 
 			// VARIABLES ------------------------------------------------------------
+
+			// @@@...
+			if( !hash_started && !at_ellipsis_started && lines[i].indexOf(at_ellipsis_key) > -1 )
+			{
+				//var arr = lines[i].trim().split(/[\s\t]+(.*)/);
+				//var arr = lines[i].trim().split(/\s+(.*)/, 2);
+				
+				current_key = lines[i].trim().split(at_ellipsis_key)[1];
+				at_ellipsis_started = true;
+
+				continue;
+			}
 
 			// @@@
 			if( !hash_started && lines[i].indexOf(atkey) > -1 )
