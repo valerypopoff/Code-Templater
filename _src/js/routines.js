@@ -829,7 +829,7 @@ function GetInstructionsFromFileContent( content )
 					current_bulk_content = [];
 					current_bulk_content = lines[i].trimLeft().split("\t");
 
-					for( var i=0; i<current_bulk_key.length() )
+					for( var i=0; i<current_bulk_key.length; i++ )
 					{
 						current_content = (current_bulk_content[i] !== undefined ? current_bulk_content[i] : "");
 
