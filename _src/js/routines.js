@@ -817,6 +817,8 @@ function GetInstructionsFromFileContent( content )
 
 			if( at_ellipsis_started )
 			{
+				//console.log( "at_ellipsis_started, see line: ", lines[i])
+
 				//console.log( lines[i] );
 				if( lines[i].trim() == "" )
 				{
@@ -829,17 +831,23 @@ function GetInstructionsFromFileContent( content )
 					current_bulk_content = [];
 					current_bulk_content = lines[i].trimLeft().split("\t");
 
-					for( var i=0; i<current_bulk_key.length; i++ )
-					{
-						current_content = (current_bulk_content[i] !== undefined ? current_bulk_content[i] : "");
+					//console.log("current_bulk_content: ", current_bulk_content)
 
-						UpdateRepeats();
-						StoreProperly(instructions, domain_counter, current_domain, current_bulk_key[i], current_content, current_iteration);
+					for( var k=0; k<current_bulk_key.length; k++ )
+					{
+						current_content = (current_bulk_content[k] !== undefined ? current_bulk_content[k] : "");
+						//console.log("current_content: ", current_content)
+
+						if( k == 0 )
+							UpdateRepeats();
+	
+						StoreProperly(instructions, domain_counter, current_domain, current_bulk_key[k], current_content, current_iteration);
 
 					}
 
 				} else // CLOSE @@@...
 				{
+					//console.log("closing @@@...")
 					//current_key = "";
 					current_bulk_key = [];
 					//current_content = "";
@@ -1012,6 +1020,8 @@ function GetInstructionsFromFileContent( content )
 				
 				//current_key = lines[i].trim().split(at_ellipsis_key)[1];
 				current_bulk_key = lines[i].trim().split(at_ellipsis_key)[1].trim().split(/\s+/);
+				//console.log( "current_bulk_key: ", current_bulk_key )
+
 				at_ellipsis_started = true;
 
 				continue;
