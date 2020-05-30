@@ -822,12 +822,10 @@ function GetInstructionsFromFileContent( content )
 				//console.log( lines[i] );
 				if( lines[i].trim() == "" )
 				{
-					continue;
+					//continue;
 				}
-				else if( lines[i].indexOf(at_ellipsis_key) == -1 )
+				else if( lines[i].trim().indexOf(at_ellipsis_key) != 0 )
 				{
-					//current_content = (lines[i] !== undefined ? lines[i] : "").trim();
-
 					current_bulk_content = [];
 					current_bulk_content = lines[i].trimLeft().split("\t");
 
@@ -842,10 +840,12 @@ function GetInstructionsFromFileContent( content )
 							UpdateRepeats();
 	
 						StoreProperly(instructions, domain_counter, current_domain, current_bulk_key[k], current_content, current_iteration);
-
 					}
 
-				} else // CLOSE @@@...
+				} 
+				
+				// CLOSE @@@... or last line of file
+				if( lines[i].trim().indexOf(at_ellipsis_key) == 0 || i == lines.length-1 ) 
 				{
 					//console.log("closing @@@...")
 					//current_key = "";
