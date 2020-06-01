@@ -126,12 +126,25 @@ function GetDomainName( str )
 
 function GetDelimiter( str )
 {
-    var temp = str.match( /DELIMITER[\s\t]*=[\s\t]*"(.*?)"/ );
+    //var temp = str.match( /DELIMITER[\s\t]*=[\s\t]*"(.*?)"/ );
+    var temp = str.match( /DELIMITER[\s\t]*=[\s\t]*"(.*?)(?<!(?<!\\)\\)"/ );
 
     if( temp === null )
         return "";
     else
-        return temp[1];
+    {
+        //return temp[1];
+
+        try
+        {
+            return JSON.parse('"' + temp[1] + '"')
+        }
+        catch(e)
+        {
+            return temp[1];
+        }
+
+    }
 }
 
 
