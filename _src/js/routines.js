@@ -749,10 +749,16 @@ function GetInstructionsFromFileContent( content )
 			if( boundary_key !== undefined )
 			{
 				// if the current_key equals a boundary key
+				// ++ iteration counter
 				if( boundary_key == current_key )
 				{
 					current_iteration++;
 					//console.log( "REPEATED" );
+				} 
+				// do nothing
+				else
+				{
+
 				}
 
 			} else
@@ -833,15 +839,18 @@ function GetInstructionsFromFileContent( content )
 
 					for( var k=0; k<current_bulk_key.length; k++ )
 					{
+						current_key = current_bulk_key[k];
 						current_content = (current_bulk_content[k] !== undefined ? current_bulk_content[k] : "");
 						//console.log("current_content: ", current_content)
 
-						if( k == 0 )
-							UpdateRepeats();
+						//if( k == 0 )
+						UpdateRepeats();
 	
-						StoreProperly(instructions, domain_counter, current_domain, current_bulk_key[k], current_content, current_iteration);
-					}
+						StoreProperly(instructions, domain_counter, current_domain, current_key, current_content, current_iteration);
 
+						current_key = "";
+						current_content = "";					
+					}
 				} 
 				
 				// CLOSE @@@... or last line of file
